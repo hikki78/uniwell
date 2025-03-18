@@ -33,7 +33,7 @@ export const GET = async (request: Request) => {
         username: user.username,
         image: user.image,
         userRole: user.subscriptions[0].userRole,
-        lastTimeActive: user.lastTimeActive,
+        lastTimeActive: (user as any).lastTimeActive || null,
       };
     });
 

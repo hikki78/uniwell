@@ -9,7 +9,7 @@ import { AuthProvider } from "@/providers/AuthProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { QueryProvider } from "@/providers/QueryProvider";
 
-const locales = ["en", "te"];
+const locales = ["en"];
 
 export const metadata: Metadata = {
   title: "Create Next App",

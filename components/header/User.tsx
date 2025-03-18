@@ -119,15 +119,6 @@ export const User = ({ profileImage, username, email }: Props) => {
                   <span>English</span>
                   {lang === "en" && <Check size={14} />}
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    onSelectChange("te");
-                  }}
-                  className="flex justify-between items-center cursor-pointer"
-                >
-                  <span>Telugu</span>
-                  {lang === "te" && <Check size={14} />}
-                </DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
           </DropdownMenuSub>

@@ -21,8 +21,7 @@ export const CalendarTask = ({ date, onSelectedDate }: Props) => {
   const t = useTranslations("TASK_SHORTCUT");
 
   const currentLocale = useMemo(() => {
-    if (lang === "te") return te;
-    else return enUS;
+     return enUS;
   }, [lang]);
 
   return (

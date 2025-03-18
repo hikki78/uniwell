@@ -49,8 +49,7 @@ export function TaskCalendar({
   const { status, onSetStatus } = useAutosaveIndicator();
 
   const currentLocale = useMemo(() => {
-    if (lang === "te") return te;
-    else return enUS;
+   return enUS;
   }, [lang]);
 
   const { mutate: updateTaskDate, isPending } = useMutation({

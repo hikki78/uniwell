@@ -51,11 +51,7 @@ const languages = [
   {
     label: "English",
     value: "en",
-  },
-  {
-    label: "Telugu",
-    value: "te",
-  },
+  }
 ] as const;
 
 export const AccountInfo = ({
@@ -99,7 +95,7 @@ export const AccountInfo = ({
       });
     },
     onSuccess: async (res: AccountInfoSettingsSchema) => {
-      if (res.language !== lang) onSelectChange(res.language as "te" | "en");
+      if (res.language !== lang) onSelectChange(res.language as "en");
       await update();
       router.refresh();
     },
