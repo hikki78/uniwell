@@ -1,0 +1,31 @@
+/* ...existing code... */
+
+:root {
+  /* ...existing code... */
+  --primary: 260 84% 57%; /* Purple-600 in HSL */
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 270 58% 55%; /* #9c4dcc in HSL */
+  --secondary-foreground: 0 0% 100%;
+  
+  --accent: 273 82% 31%; /* #6b0f92 in HSL */
+  --accent-foreground: 0 0% 100%;
+
+  /* Replace any other red-related CSS variables with purple equivalents */
+  /* ...existing code... */
+}
+
+.dark {
+  /* ...existing code... */
+  --primary: 260 84% 57%;
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 270 58% 55%;
+  --secondary-foreground: 0 0% 100%;
+  
+  --accent: 273 82% 31%;
+  --accent-foreground: 0 0% 100%;
+  /* ...existing code... */
+}
+
+/* ...existing code... */
