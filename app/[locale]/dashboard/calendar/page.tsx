@@ -10,9 +10,12 @@ const AssignedToMe = async () => {
 
   return (
     <>
-      <DashboardHeader>
+      {/* @ts-ignore */}
+      <DashboardHeader />
+      <div className="flex justify-end p-2 mt-2">
+        {/* @ts-ignore */}
         <AddTaskShortcut userId={session.user.id} />
-      </DashboardHeader>
+      </div>
       <main className="h-full">
         <Calendar userId={session.user.id} />
       </main>

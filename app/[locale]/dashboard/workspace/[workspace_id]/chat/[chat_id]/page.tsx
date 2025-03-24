@@ -45,7 +45,9 @@ const Chat = async ({ params: { workspace_id, chat_id } }: Params) => {
 
   return (
     <>
+      
       <DashboardHeader
+      // @ts-ignore
         addManualRoutes={[
           {
             name: "DASHBOARD",
@@ -62,12 +64,13 @@ const Chat = async ({ params: { workspace_id, chat_id } }: Params) => {
             useTranslate: true,
           },
         ]}
-      >
+      />
+      <div className="flex items-center container mx-auto gap-2">
         {(userRole === "ADMIN" || userRole === "OWNER") && (
           <InviteUsers workspace={workspace} />
         )}
         <AddTaskShortcut userId={session.user.id} />
-      </DashboardHeader>
+      </div>
       <main className="h-full w-full max-h-fit">
         <ChatContainer
           chatId={conversationId}

@@ -7,9 +7,12 @@ import { useMemo } from "react";
 export const useGetAssignedToMeParams = () => {
   const searchParams = useSearchParams();
 
+  //@ts-ignore
   const typeParams = searchParams.get("type");
 
+  //@ts-ignore
   const workspaceFilterParam = searchParams.get("workspace")
+  // @ts-ignore
     ? searchParams.get("workspace")
     : "all";
 

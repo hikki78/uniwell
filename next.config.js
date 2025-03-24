@@ -1,4 +1,6 @@
+/** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
   images: {
     remotePatterns: [
       {
@@ -18,6 +20,22 @@ const nextConfig = {
         hostname: "avatars.githubusercontent.com",
       },
     ],
+  },
+  webpack: (config, { isServer }) => {
+    // Handle Node.js specific modules
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        // Provide empty modules for Node.js specific features
+        fs: false,
+        net: false,
+        tls: false,
+        child_process: false,
+        'aws-sdk': false,
+        'mock-aws-s3': false,
+      };
+    }
+    return config;
   },
 };
 

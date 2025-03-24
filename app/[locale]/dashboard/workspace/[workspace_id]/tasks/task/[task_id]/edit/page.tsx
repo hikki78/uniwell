@@ -38,13 +38,19 @@ const EditTask = async ({ params: { workspace_id, task_id } }: Params) => {
   return (
     <>
       <AutosaveIndicatorProvider>
-        {" "}
-        <DashboardHeader showBackBtn hideBreadCrumb showingSavingStatus>
+       
+        <DashboardHeader
+        // @ts-ignore
+          showBackBtn={true} 
+          hideBreadCrumb={true} 
+          showingSavingStatus={true} 
+        />
+        <div className="flex items-center container mx-auto gap-2">
           {(userRole === "ADMIN" || userRole === "OWNER") && (
             <InviteUsers workspace={workspace} />
           )}
           <AddTaskShortcut userId={session.user.id} />
-        </DashboardHeader>
+        </div>
         <main className="flex flex-col gap-2">
           <TaskContainer
             taskId={task_id}

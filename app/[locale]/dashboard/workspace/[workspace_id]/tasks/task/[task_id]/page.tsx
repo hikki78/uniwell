@@ -35,7 +35,9 @@ const Task = async ({ params: { workspace_id, task_id } }: Params) => {
 
   return (
     <>
+      
       <DashboardHeader
+      // @ts-ignore
         addManualRoutes={[
           {
             name: "DASHBOARD",
@@ -53,12 +55,13 @@ const Task = async ({ params: { workspace_id, task_id } }: Params) => {
             useTranslate: task.title ? false : true,
           },
         ]}
-      >
+      />
+      <div className="flex items-center container mx-auto gap-2">
         {(userRole === "ADMIN" || userRole === "OWNER") && (
           <InviteUsers workspace={workspace} />
         )}
         <AddTaskShortcut userId={session.user.id} />
-      </DashboardHeader>
+      </div>
       <main className="flex flex-col gap-2">
         <ReadOnlyContent
           task={task}

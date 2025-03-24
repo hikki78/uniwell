@@ -6,8 +6,57 @@ import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
 import AppleProvider from "next-auth/providers/apple";
 import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcrypt";
 import { generateFromEmail } from "unique-username-generator";
+
+// This file should be a server-side implementation
+
+// Use a safe pattern for bcrypt that doesn't break client builds
+let bcrypt: any = null;
+
+// Only import bcrypt in server environment
+export async function getBcrypt() {
+  if (!bcrypt) {
+    // Dynamic import only on server
+    if (typeof window === 'undefined') {
+      bcrypt = await import('bcrypt');
+    }
+  }
+  return bcrypt;
+}
+
+// Server-only auth functions
+export async function hashPassword(password: string): Promise<string> {
+  const bcryptLib = await getBcrypt();
+  if (!bcryptLib) {
+    throw new Error('Cannot hash password on client-side');
+  }
+  return bcryptLib.hash(password, 10);
+}
+
+export async function comparePassword(password: string, hash: string): Promise<boolean> {
+  const bcryptLib = await getBcrypt();
+  if (!bcryptLib) {
+    throw new Error('Cannot compare password on client-side');
+  }
+  return bcryptLib.compare(password, hash);
+}
+
+// Client-safe functions
+export function isAuthenticated() {
+  // Implement with cookies or localStorage that works on both client/server
+  if (typeof window !== 'undefined') {
+    return Boolean(localStorage.getItem('authenticated'));
+  }
+  return false;
+}
+
+export function logout() {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('authenticated');
+  }
+}
+
+// Add other auth methods that are safe for client use
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -79,7 +128,8 @@ export const authOptions: NextAuthOptions = {
         if (!user || !user?.hashedPassword) {
           throw new Error("User was not found, Please enter valid email");
         }
-        const passwordMatch = await bcrypt.compare(
+        const bcryptLib = await getBcrypt();
+        const passwordMatch = await bcryptLib.compare(
           credentials.password,
           user.hashedPassword
         );

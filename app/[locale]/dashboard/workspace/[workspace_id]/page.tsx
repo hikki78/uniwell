@@ -36,7 +36,9 @@ const Workspace = async ({ params: { workspace_id } }: Params) => {
 
   return (
     <FilterByUsersAndTagsInWorkspaceProvider>
+      
       <DashboardHeader
+      // @ts-ignore
         addManualRoutes={[
           {
             name: "DASHBOARD",
@@ -48,13 +50,14 @@ const Workspace = async ({ params: { workspace_id } }: Params) => {
             href: `/dashboard/workspace/${workspace_id}`,
           },
         ]}
-      >
+      />
+      <div className="flex items-center container mx-auto gap-2">
         {(userRole === "ADMIN" || userRole === "OWNER") && (
           <InviteUsers workspace={workspace} />
         )}
         {userRole !== "OWNER" && <LeaveWorkspace workspace={workspace} />}
         <AddTaskShortcut userId={session.user.id} />
-      </DashboardHeader>
+      </div>
       <main className="flex flex-col gap-2 w-full">
         <ShortcutContainer workspace={workspace} userRole={userRole} />
         <FilterContainer sessionUserId={session.user.id} />

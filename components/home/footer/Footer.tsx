@@ -1,43 +1,64 @@
-import { GithubLogo } from "@/components/svg/GithubLogo";
-import { buttonVariants } from "@/components/ui/button";
-import { LinkedInLogoIcon } from "@radix-ui/react-icons";
-import { YoutubeIcon } from "lucide-react";
-import Link from "next/link";
+"use client";
 
-export const Footer = () => {
+import { motion } from "framer-motion";
+import { Sparkles } from "lucide-react";
+
+export function Footer() {
+  const footerLinks = [
+    { title: "Product", items: ["Features", "Roadmap", "Changelog"] },
+    { title: "Resources", items: ["Guide", "Help Center", "Community"] },
+    { title: "Company", items: ["About", "Blog", "Contact"] },
+    { title: "Legal", items: ["Privacy", "Terms", "Security"] },
+  ];
+
   return (
-    <footer className="w-full bg-background border-t border-border mt-52">
-      <div className="container py-6 sm:py-12 max-w-screen-2xl border-t border-border flex flex-col-reverse sm:flex-row sm:justify-between items-center gap-4">
-        <div className="text-center space-y-0.5 sm:text-left">
-          <p className="font-semibold sm:text-lg">
-            Made with <span className="text-primary">love</span>
+    <motion.footer
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+      className="border-t bg-background/80 backdrop-blur-md"
+    >
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {footerLinks.map((section, index) => (
+            <motion.div
+              key={section.title}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+            >
+              <h3 className="font-semibold mb-3">{section.title}</h3>
+              <ul className="space-y-2">
+                {section.items.map((item) => (
+                  <li key={item}>
+                    <a
+                      href="#"
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {item}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          ))}
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="flex items-center justify-between mt-12 pt-8 border-t"
+        >
+          <div className="flex items-center space-x-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            <span className="font-semibold">UniWell</span>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            © {new Date().getFullYear()} UniWell. All rights reserved.
           </p>
-          <p className="text-muted-foreground">@ 2024 UniWell</p>
-        </div>
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Link
-            href={"/"}
-            target="_blank"
-            className={buttonVariants({ variant: "ghost", size: "icon" })}
-          >
-            <GithubLogo />
-          </Link>
-          <Link
-            href={"/"}
-            target="_blank"
-            className={buttonVariants({ variant: "ghost", size: "icon" })}
-          >
-            <LinkedInLogoIcon />
-          </Link>
-          <Link
-            href={"/"}
-            target="_blank"
-            className={buttonVariants({ variant: "ghost", size: "icon" })}
-          >
-            <YoutubeIcon />
-          </Link>
-        </div>
+        </motion.div>
       </div>
-    </footer>
+    </motion.footer>
   );
-};
+}

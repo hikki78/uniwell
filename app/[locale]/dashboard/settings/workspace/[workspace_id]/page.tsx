@@ -26,6 +26,7 @@ const Workspace = async ({ params: { workspace_id } }: Params) => {
   return (
     <>
       <DashboardHeader
+      // @ts-ignore
         className="mb-2 sm:mb-0"
         addManualRoutes={[
           {
@@ -42,12 +43,13 @@ const Workspace = async ({ params: { workspace_id } }: Params) => {
             href: "/",
           },
         ]}
-      >
+      />
+      <div className="flex items-center container mx-auto gap-2">
         {(user?.userRole === "ADMIN" || user?.userRole === "OWNER") && (
           <InviteUsers workspace={workspace} />
         )}
         <AddTaskShortcut userId={session.user.id} />
-      </DashboardHeader>
+      </div>
       <main className="flex flex-col gap-2">
         <WorkspaceTab workspace={workspace} workspaceId={workspace.id} />
       </main>

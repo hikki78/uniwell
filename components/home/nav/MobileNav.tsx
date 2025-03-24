@@ -1,6 +1,7 @@
 "use client";
 import { AppleLogo } from "@/components/svg/AppleLogo";
 import { LocaleSwitcher } from "@/components/switchers/LocaleSwitcher";
+import { motion } from "framer-motion"
 import { ThemeSwitcher } from "@/components/switchers/ThemeSwitcher";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";

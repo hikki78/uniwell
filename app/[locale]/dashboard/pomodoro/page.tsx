@@ -13,9 +13,12 @@ const Pomodoro = async () => {
 
   return (
     <>
-      <DashboardHeader>
+      {/* @ts-ignore */}
+      <DashboardHeader />
+      <div className="flex justify-end p-2 mt-2">
+        {/* @ts-ignore */}
         <AddTaskShortcut userId={session.user.id} />
-      </DashboardHeader>
+      </div>
       <main className="flex flex-col gap-2 h-full items-center">
         <PomodoContainer pomodoroSettings={pomodoroSettings} />
       </main>

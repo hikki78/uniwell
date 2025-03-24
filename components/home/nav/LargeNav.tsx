@@ -2,6 +2,7 @@
 import { AppleLogo } from "@/components/svg/AppleLogo";
 import { LocaleSwitcher } from "@/components/switchers/LocaleSwitcher";
 import { ThemeSwitcher } from "@/components/switchers/ThemeSwitcher";
+import { motion } from "framer-motion"
 import { buttonVariants, Button } from "@/components/ui/button";
 import {
   NavigationMenu,

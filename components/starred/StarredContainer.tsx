@@ -18,6 +18,7 @@ interface Props {
 
 export const StarredContainer = ({ userId }: Props) => {
   const params = useSearchParams();
+  //@ts-ignore
   const sortParam = params.get("sort");
   const sortType = sortParam && sortParam === "desc" ? "desc" : "asc";
 

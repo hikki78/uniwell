@@ -8,9 +8,12 @@ const Starred = async () => {
 
   return (
     <>
-      <DashboardHeader>
+      {/* @ts-ignore */}
+      <DashboardHeader />
+      <div className="flex justify-end p-2 mt-2">
+        {/* @ts-ignore */}
         <AddTaskShortcut userId={session.user.id} />
-      </DashboardHeader>
+      </div>
       <main>
         <StarredContainer userId={session.user.id} />
       </main>

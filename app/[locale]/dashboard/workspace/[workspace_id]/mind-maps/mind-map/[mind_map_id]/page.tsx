@@ -43,7 +43,9 @@ const MindMapPage = async ({
   return (
     <AutosaveIndicatorProvider>
       <AutoSaveMindMapProvider>
+       
         <DashboardHeader
+        //@ts-ignore
           addManualRoutes={[
             {
               name: "DASHBOARD",
@@ -61,13 +63,14 @@ const MindMapPage = async ({
               useTranslate: mindMap.title ? false : true,
             },
           ]}
-          showBackBtn
-          hideBreadCrumb
-          showingSavingStatus
-        >
+          showBackBtn={true}
+          hideBreadCrumb={true}
+          showingSavingStatus={true}
+        />
+        <div className="flex items-center container mx-auto gap-2">
           {canEdit && <InviteUsers workspace={workspace} />}
           <AddTaskShortcut userId={session.user.id} />
-        </DashboardHeader>
+        </div>
         <main className="flex flex-col gap-2 h-full mb-4">
           <MindMapPreviewCardWrapper
             mindMap={mindMap}
@@ -82,7 +85,7 @@ const MindMapPage = async ({
             />
           </MindMapPreviewCardWrapper>
         </main>
-      </AutoSaveMindMapProvider>{" "}
+      </AutoSaveMindMapProvider>
     </AutosaveIndicatorProvider>
   );
 };

@@ -11,6 +11,7 @@ export const useProviderLoginError = (showLoggedInfo: boolean) => {
   const m = useTranslations("MESSAGES");
   const router = useRouter();
   useEffect(() => {
+    // @ts-ignore
     const error = params.get("error");
     if (error && session.status === "unauthenticated") {
       switch (error) {

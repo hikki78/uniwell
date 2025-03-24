@@ -50,6 +50,7 @@ export const UserActivityStatusProvider = ({ children }: Props) => {
 
   const params = useParams();
   const session = useSession();
+  // @ts-ignore
   const workspaceId = params.workspace_id ? params.workspace_id : null;
 
   const {

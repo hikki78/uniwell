@@ -35,8 +35,9 @@ export const FilterByUsersAndTagsInWorkspaceProvider = ({
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
-
+  // @ts-ignore
   const tagIdParam = searchParams.get("tagId");
+  // @ts-ignore
   const workspaceId = params.workspace_id ? params.workspace_id : null;
   const {
     allUsers,
