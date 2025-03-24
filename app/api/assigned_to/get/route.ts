@@ -1,10 +1,10 @@
+import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { sortMindMapsAndTasksDataByUpdatedAt } from "@/lib/sortMindMapsAndTasksDataByUpdatedAt";
 import {
   AssignedItemType,
   AssignedToMeTaskAndMindMaps,
 } from "@/types/extended";
-import { NextResponse } from "next/server";
 
 export const GET = async (request: Request) => {
   const url = new URL(request.url);
@@ -16,6 +16,11 @@ export const GET = async (request: Request) => {
   if (!userId) return NextResponse.json("ERRORS.WRONG_DATA", { status: 404 });
 
   try {
+    // Check if we're in build process and return empty data to allow successful build
+    if (process.env.NEXT_PHASE === 'phase-production-build') {
+      return NextResponse.json({ tasks: [], mindMaps: [] }, { status: 200 });
+    }
+
     if (workspaceFilterParam && workspaceFilterParam !== "all") {
       const taskAndMindMaps = await db.workspace.findUnique({
         where: {
@@ -335,6 +340,7 @@ export const GET = async (request: Request) => {
       );
     }
   } catch (err) {
+    console.error('Error in assigned_to/get route:', err);
     return NextResponse.json("ERRORS.DB_ERROR", { status: 405 });
   }
 };
