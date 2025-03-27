@@ -25,7 +25,11 @@ export const ProviderSignInBtn = ({
     onLoading(true);
     setShowLoggedInfo(true);
     try {
-      await signIn(providerName, { callbackUrl: `/${locale}/onboarding` });
+      // Use direct provider sign-in with redirect: true for OAuth providers
+      // This is different from credentials provider and should work with redirect: true
+      await signIn(providerName, { 
+        callbackUrl: `/onboarding`
+      });
     } catch (err) {}
     onLoading(false);
   };

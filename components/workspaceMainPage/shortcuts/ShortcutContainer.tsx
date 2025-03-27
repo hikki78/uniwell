@@ -1,21 +1,12 @@
 "use client";
 
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { UserPermission, Workspace } from "@prisma/client";
-import { ShortcutContainerBtnItem } from "./ShortcutContainerBtnItem";
-import {
-  MessageSquare,
-  MessagesSquare,
-  PencilRuler,
-  Workflow,
-} from "lucide-react";
-import { LeaveWorkspace } from "@/components/workspaceMainPage/shortcuts/leaveWorkspace/LeaveWorkspace";
-import { ShortcutContainerItemPrivateMessageDialog } from "./privateMessagesDialog/ShortcutContainerItemPrivateMessageDialog";
-import { useNewTask } from "@/hooks/useNewTask";
-import { useNewMindMap } from "@/hooks/useNewMindMap";
+import { Card, CardContent } from "@/components/ui/card";
+import { UserPermission } from "@prisma/client";
+import { MessagesSquare } from "lucide-react";
 import { PermissionIndicator } from "@/components/workspaceMainPage/shortcuts/permissionIndicator/Permissionindicator";
 import { ShortcutContainerLinkItem } from "./ShortcutContainerLinkItem";
 import { ExtendedWorkspace } from "@/types/extended";
+import { WorkspaceLeaderboard } from "../leaderboard/WorkspaceLeaderboard";
 
 interface Props {
   workspace: ExtendedWorkspace;
@@ -23,39 +14,31 @@ interface Props {
 }
 
 export const ShortcutContainer = ({ workspace, userRole }: Props) => {
-  const { newTask, isPending: isNewTaskLoading } = useNewTask(workspace.id);
-  const { newMindMap, isPending: isNewMindMapLoading } = useNewMindMap(
-    workspace.id
-  );
   return (
-    <ScrollArea className="w-full">
-      <div className="flex w-max space-x-4 pb-4 mt-4">
-        <PermissionIndicator
-          userRole={userRole}
-          workspaceName={workspace.name}
-        />
-        <ShortcutContainerLinkItem
-          userRole={userRole}
-          Icon={MessagesSquare}
-          title="Group chat"
-          href={`/dashboard/workspace/${workspace.id}/chat/${workspace.conversation.id}`}
-        />
-        <ShortcutContainerBtnItem
-          userRole={userRole}
-          Icon={PencilRuler}
-          title="New task"
-          isLoading={isNewTaskLoading}
-          onClick={newTask}
-        />
-        <ShortcutContainerBtnItem
-          userRole={userRole}
-          Icon={Workflow}
-          title="New mind map"
-          isLoading={isNewMindMapLoading}
-          onClick={newMindMap}
-        />
-        {userRole !== "OWNER" && <LeaveWorkspace workspace={workspace} />}
+    <div className="w-full">
+      <h3 className="text-lg font-medium mb-3">Workspace Tools</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Card className="shadow-sm hover:shadow-md transition-all duration-200">
+          <CardContent className="p-4">
+            <PermissionIndicator
+              userRole={userRole}
+              workspaceName={workspace.name}
+            />
+          </CardContent>
+        </Card>
+        <Card className="shadow-sm hover:shadow-md transition-all duration-200">
+          <CardContent className="p-4">
+            <ShortcutContainerLinkItem
+              userRole={userRole}
+              Icon={MessagesSquare}
+              title="Chat"
+              href={`/dashboard/workspace/${workspace.id}/chat/${workspace.conversation.id}`}
+              className="w-full h-14 text-sm flex justify-center items-center"
+              iconSize={18}
+            />
+          </CardContent>
+        </Card>
       </div>
-    </ScrollArea>
+    </div>
   );
 };

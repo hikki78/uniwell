@@ -40,25 +40,26 @@ export const SignInCardContent = () => {
     setIsLoading(true);
 
     try {
-      const account = await signIn("credentials", {
+      // Use window.location for a hard redirect instead of client-side routing
+      const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
         redirect: false,
       });
 
-      if (!account) throw new Error("Something went wrong");
+      if (!result) throw new Error("Something went wrong");
 
-      if (account.error) {
+      if (result.error) {
         toast({
-          title: m(account.error),
+          title: m(result.error),
           variant: "destructive",
         });
       } else {
         toast({
           title: m("SUCCESS.SIGN_IN"),
         });
-        router.push("/onboarding");
-        router.refresh();
+        // Force a hard redirect to the onboarding page
+        window.location.href = "/onboarding";
       }
     } catch (err) {
       let errMsg = m("ERRORS.DEFAULT");

@@ -1,5 +1,4 @@
 import { AddTaskShortcut } from "@/components/addTaskShortCut/AddTaskShortcut";
-import { DashboardHeader } from "@/components/header/DashboardHeader";
 import { InviteUsers } from "@/components/inviteUsers/InviteUsers";
 import { LeaveWorkspace } from "@/components/workspaceMainPage/shortcuts/leaveWorkspace/LeaveWorkspace";
 import { MindMap } from "@/components/mindMaps/MindMap";
@@ -44,43 +43,32 @@ const Chat = async ({ params: { workspace_id, chat_id } }: Params) => {
     redirect("/dashboard/errors?error=no-conversation");
 
   return (
-    <>
-      
-      <DashboardHeader
-      // @ts-ignore
-        addManualRoutes={[
-          {
-            name: "DASHBOARD",
-            href: "/dashboard",
-            useTranslate: true,
-          },
-          {
-            name: workspace.name,
-            href: `/dashboard/workspace/${workspace_id}`,
-          },
-          {
-            name: "CHAT",
-            href: `/dashboard/workspace/${workspace_id}/chat/${chat_id}`,
-            useTranslate: true,
-          },
-        ]}
-      />
-      <div className="flex items-center container mx-auto gap-2">
-        {(userRole === "ADMIN" || userRole === "OWNER") && (
-          <InviteUsers workspace={workspace} />
-        )}
-        <AddTaskShortcut userId={session.user.id} />
+    <div className="container mx-auto px-4 py-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div>
+          <h1 className="text-xl md:text-2xl font-bold">{workspace.name}</h1>
+          <p className="text-muted-foreground text-sm mt-1">Chat</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {(userRole === "ADMIN" || userRole === "OWNER") && (
+            <InviteUsers workspace={workspace} />
+          )}
+          <AddTaskShortcut userId={session.user.id} />
+        </div>
       </div>
-      <main className="h-full w-full max-h-fit">
-        <ChatContainer
-          chatId={conversationId}
-          workspaceId={workspace.id}
-          initialMessages={initialMessages ? initialMessages : []}
-          sessionUserId={session.user.id}
-          workspaceName={workspace?.name}
-        />
-      </main>
-    </>
+      
+      <div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 rounded-xl p-4 md:p-6 shadow-sm border border-border/40 h-[calc(100vh-12rem)]">
+        <main className="h-full w-full">
+          <ChatContainer
+            chatId={conversationId}
+            workspaceId={workspace.id}
+            initialMessages={initialMessages ? initialMessages : []}
+            sessionUserId={session.user.id}
+            workspaceName={workspace?.name}
+          />
+        </main>
+      </div>
+    </div>
   );
 };
 

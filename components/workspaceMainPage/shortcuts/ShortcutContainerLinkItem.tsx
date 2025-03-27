@@ -11,6 +11,8 @@ interface Props {
   Icon: LucideIcon;
   userRole: UserPermission | null;
   href: string;
+  className?: string;
+  iconSize?: number;
 }
 
 export const ShortcutContainerLinkItem = ({
@@ -18,16 +20,19 @@ export const ShortcutContainerLinkItem = ({
   title,
   userRole,
   href,
+  className,
+  iconSize = 16
 }: Props) => {
   return (
-    <Link
-      href={href}
-      className={`text-sm md:text-base min-w-[10rem] sm:min-w-[13rem] h-14 p-2 rounded-lg shadow-sm flex justify-center items-center gap-1 md:gap-2 ${
-        userRole !== "OWNER" ? "w-1/5" : "w-1/4"
-      }`}
+    <Button
+      variant="outline"
+      asChild
+      className={className || "w-full h-14"}
     >
-      <Icon size={16} />
-      <h4 className="break-words">{title}</h4>
-    </Link>
+      <Link href={href} className="w-full h-full flex justify-between items-center px-4">
+        <span className="font-medium">{title}</span>
+        <Icon size={iconSize} />
+      </Link>
+    </Button>
   );
 };

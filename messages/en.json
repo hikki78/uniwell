@@ -622,7 +622,7 @@
   "ASSIGNED_TO_ME": {
     "TITLE": "Assigned to Me",
     "DESC": "Here you will find all your saved mind maps and tasks",
-    "NO_ASSIGMENT": "You haven't been assigned anywhere yet",
+    "NO_ASSIGNMENT": "We couldn't find any tasks or mind maps that met the criteria",
     "NOT_FOUND": "We couldn't find any tasks or mind maps that met the criteria",
     "DEFAULT_NAME": {
       "MIND_MAP": "Untitled Mind Map",

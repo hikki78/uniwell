@@ -1,11 +1,8 @@
-import { AddTaskShortcut } from "@/components/addTaskShortCut/AddTaskShortcut";
-import { DashboardHeader } from "@/components/header/DashboardHeader";
-import { InviteUsers } from "@/components/inviteUsers/InviteUsers";
 import { TaskContainer } from "@/components/tasks/editable/container/TaskContainer";
-import { NewTask } from "@/components/tasks/newTask/NewTask";
+import { TaskActionButtons } from "@/components/tasks/readOnly/TaskActionButtons";
 import { ReadOnlyContent } from "@/components/tasks/readOnly/ReadOnlyContent";
+import { WorkspacePageHeader } from "@/components/workspacePages/WorkspacePageHeader";
 import { getTask, getUserWorkspaceRole, getWorkspace } from "@/lib/api";
-import { changeCodeToEmoji } from "@/lib/changeCodeToEmoji";
 import { checkIfUserCompletedOnboarding } from "@/lib/checkIfUserCompletedOnboarding";
 import { notFound } from "next/navigation";
 
@@ -34,42 +31,33 @@ const Task = async ({ params: { workspace_id, task_id } }: Params) => {
     undefined;
 
   return (
-    <>
-      
-      <DashboardHeader
-      // @ts-ignore
-        addManualRoutes={[
-          {
-            name: "DASHBOARD",
-            href: "/dashboard",
-            useTranslate: true,
-          },
-          {
-            name: workspace.name,
-            href: `/dashboard/workspace/${workspace_id}`,
-          },
-          {
-            name: `${task.title ? task.title : "UNTITLED"}`,
-            emoji: changeCodeToEmoji(task.emoji),
-            href: "/",
-            useTranslate: task.title ? false : true,
-          },
-        ]}
+    <div className="container mx-auto px-4 py-6">
+      <WorkspacePageHeader
+        title={task.title}
+        emoji={task.emoji}
+        workspace={workspace}
+        userRole={userRole}
+        userId={session.user.id}
+        actions={
+          <TaskActionButtons
+            taskId={task.id}
+            workspaceId={workspace.id}
+            userRole={userRole}
+            isSaved={isSavedByUser}
+          />
+        }
       />
-      <div className="flex items-center container mx-auto gap-2">
-        {(userRole === "ADMIN" || userRole === "OWNER") && (
-          <InviteUsers workspace={workspace} />
-        )}
-        <AddTaskShortcut userId={session.user.id} />
+      
+      <div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 rounded-xl p-4 md:p-6 shadow-sm border border-border/40">
+        <main className="flex flex-col gap-4 w-full">
+          <ReadOnlyContent
+            task={task}
+            isSavedByUser={isSavedByUser}
+            userRole={userRole}
+          />
+        </main>
       </div>
-      <main className="flex flex-col gap-2">
-        <ReadOnlyContent
-          task={task}
-          isSavedByUser={isSavedByUser}
-          userRole={userRole}
-        />
-      </main>
-    </>
+    </div>
   );
 };
 

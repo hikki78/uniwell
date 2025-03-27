@@ -34,30 +34,28 @@ export const RecentActivityItem = ({
       : c("EDITED_ITEM_SENTENCE.TASK");
   return (
     <Link href={link}>
-      <Card className="bg-background border-none hover:bg-accent transition-colors duration-200 p-2">
-        <CardContent className="flex w-full justify-between sm:items-center p-2 sm:p-2 pt-0">
-          <div className="flex flex-row sm:gap-4 gap-2 w-full">
+      <Card className="shadow-sm hover:shadow-md transition-all duration-200">
+        <CardContent className="p-4">
+          <div className="flex gap-3 w-full">
             <ReadOnlyEmoji
-              className="sm:h-16 sm:w-16 h-12 w-12"
+              className="h-10 w-10 flex-shrink-0"
               selectedEmoji={emoji}
             />
-            <div className="w-full">
-              <div className="flex items-center">
-                <h2 className="text-lg sm:text-2xl font-semibold">
+            <div className="w-full overflow-hidden">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-medium truncate">
                   {!title && type === "mindMap" && c("DEFAULT_NAME.MIND_MAP")}
                   {!title && type === "task" && c("DEFAULT_NAME.TASK")}
                   {title && truncatedTitle}
-                </h2>
-                {starred && <StarSvg className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />}
+                </h3>
+                {starred && <StarSvg className="ml-2 w-4 h-4 flex-shrink-0" />}
               </div>
               {updated.by && (
-                <div className="flex flex-col md:flex-row md:items-center md:gap-1">
-                  <p className="text-muted-foreground">{itemTypeSentence}</p>{" "}
-                  {format.relativeTime(dateTime, now)}{" "}
-                  {c("EDITED_ITEM_SENTENCE.BY")}
-                  <div className="flex items-center gap-1">
-                    <UserHoverInfo className="px-0" user={updated.by} />
-                  </div>
+                <div className="flex items-center flex-wrap text-sm text-muted-foreground mt-1">
+                  <span>{itemTypeSentence}</span>
+                  <span className="mx-1">{format.relativeTime(dateTime, now)}</span>
+                  <span>{c("EDITED_ITEM_SENTENCE.BY")}</span>
+                  <UserHoverInfo className="px-0 ml-1" user={updated.by} />
                 </div>
               )}
               <div className="flex items-center flex-wrap gap-1 mt-2">

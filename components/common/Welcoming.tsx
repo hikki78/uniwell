@@ -52,27 +52,31 @@ const Welcoming = React.forwardRef<HTMLDivElement, Props>(
         <div
           ref={ref}
           className={cn(
-            `space-y-1 ${hideOnDesktop ? "lg:hidden" : ""} ${
-              hideOnMobile ? "hidden lg:block" : ""
-            }`,
+            `space-y-3`,
             className
           )}
           {...props}
         >
-          <p className="font-bold sm:text-3xl text-2xl">
-            {t("WELCOMEBACK")},{" "}
-            <span>
-              {name
-                ? name && surname
-                  ? `${name} ${surname}`
-                  : name
-                : username}
-            </span>{" "}
-            👋
-          </p>
-          <p className="text-muted-foreground max-w-sm sm:max-w-xl">
-            {day[0].toUpperCase() + day.slice(1)}
-          </p>
+          <div>
+            <p className="font-bold sm:text-3xl text-2xl">
+              {t("WELCOMEBACK")},{" "}
+              <span>
+                {name
+                  ? name && surname
+                    ? `${name} ${surname}`
+                    : name
+                  : username}
+              </span>{" "}
+              👋
+            </p>
+            <p className="text-muted-foreground max-w-sm sm:max-w-xl">
+              {day[0].toUpperCase() + day.slice(1)}
+            </p>
+          </div>
+          <div className="mt-2">
+            <p className="font-semibold text-xl sm:text-2xl text-primary">Rise & Shine Beautiful! ✨</p>
+            <p className="text-muted-foreground">Let's make today amazing</p>
+          </div>
         </div>
       );
     }

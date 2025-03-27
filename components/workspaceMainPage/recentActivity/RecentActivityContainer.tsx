@@ -104,16 +104,18 @@ export const RecentActivityContainer = ({ userId, workspaceId }: Props) => {
     return <ClientError message={t("ERROR")} />;
   } else {
     return (
-      <div className="w-full flex flex-col gap-2">
+      <div className="w-full">
         {isLoading ? (
           <div className="w-full flex items-center justify-center mt-20 sm:mt-32">
             <LoadingState className="w-10 h-10 sm:h-11 sm:w-11" />
           </div>
         ) : recentActivity && recentActivity.length > 0 ? (
           activityItems && activityItems.length > 0 ? (
-            activityItems.map((activity) => (
-              <RecentActivityItem key={activity.id} activity={activity} />
-            ))
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {activityItems.map((activity) => (
+                <RecentActivityItem key={activity.id} activity={activity} />
+              ))}
+            </div>
           ) : (
             <NoFilteredData />
           )

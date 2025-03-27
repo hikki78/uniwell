@@ -37,15 +37,20 @@ export const PermissionIndicator = ({ userRole, workspaceName }: Props) => {
         <DialogTrigger asChild>
           <Button
             variant={"outline"}
-            size={"icon"}
-            className={`text-sm md:text-base min-w-[10rem] sm:min-w-[13rem] h-14 p-2 rounded-lg shadow-sm flex justify-center items-center gap-1 md:gap-2 ${
-              userRole !== "OWNER" ? "w-1/5" : "w-1/4"
-            }`}
+            className="w-full h-14 text-sm flex justify-between items-center px-4"
           >
-            {userRole === "OWNER" && <span>{userRoleEmojis[0]}</span>}
-            {userRole === "ADMIN" && <span>{userRoleEmojis[1]}</span>}
-            {userRole === "CAN_EDIT" && <span>{userRoleEmojis[2]}</span>}
-            {userRole === "READ_ONLY" && <span>{userRoleEmojis[3]}</span>}
+            <span className="font-medium">
+              {userRole === "OWNER" && "Owner"}
+              {userRole === "ADMIN" && "Admin"}
+              {userRole === "CAN_EDIT" && "Editor"}
+              {userRole === "READ_ONLY" && "Viewer"}
+            </span>
+            <span className="flex items-center gap-2">
+              {userRole === "OWNER" && <span className="text-2xl">{userRoleEmojis[0]}</span>}
+              {userRole === "ADMIN" && <span className="text-2xl">{userRoleEmojis[1]}</span>}
+              {userRole === "CAN_EDIT" && <span className="text-2xl">{userRoleEmojis[2]}</span>}
+              {userRole === "READ_ONLY" && <span className="text-2xl">{userRoleEmojis[3]}</span>}
+            </span>
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[525px]">

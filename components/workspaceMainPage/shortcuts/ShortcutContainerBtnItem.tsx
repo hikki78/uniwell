@@ -11,6 +11,8 @@ interface Props {
   userRole: UserPermission | null;
   isLoading: boolean;
   onClick: () => void;
+  className?: string;
+  iconSize?: number;
 }
 
 export const ShortcutContainerBtnItem = ({
@@ -19,13 +21,15 @@ export const ShortcutContainerBtnItem = ({
   userRole,
   isLoading,
   onClick,
+  className,
+  iconSize = 16
 }: Props) => {
   return (
     <Button
       disabled={isLoading}
       onClick={onClick}
       variant={"outline"}
-      className={`text-sm md:text-base min-w-[10rem] sm:min-w-[13rem] h-14 p-2 rounded-lg shadow-sm flex justify-center items-center gap-1 md:gap-2 ${
+      className={`text-sm flex justify-center items-center gap-1 rounded-lg shadow-sm ${className || 'min-w-[10rem] sm:min-w-[13rem] h-14 p-2 md:text-base'} ${
         userRole !== "OWNER" ? "w-1/5" : "w-1/4"
       }`}
     >
@@ -33,7 +37,7 @@ export const ShortcutContainerBtnItem = ({
         <LoadingState />
       ) : (
         <>
-          <Icon size={16} />
+          <Icon size={iconSize} />
           <h4 className="break-words">{title}</h4>
         </>
       )}

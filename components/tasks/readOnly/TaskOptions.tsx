@@ -31,19 +31,15 @@ import Link from "next/link";
 import { useState } from "react";
 
 interface Props {
-  isSaved: boolean;
   taskId: string;
   workspaceId: string;
   userRole: UserPermission | null;
-  onSetIsSaved: () => void;
 }
 
 export const TaskOptions = ({
-  isSaved,
   taskId,
   workspaceId,
   userRole,
-  onSetIsSaved,
 }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const m = useTranslations("MESSAGES");
@@ -81,30 +77,7 @@ export const TaskOptions = ({
     mutationKey: ["deleteTask"],
   });
 
-  const { mutate: toggleSaveTask } = useMutation({
-    mutationFn: async () => {
-      await axios.post("/api/saved/tasks/toggleTask", {
-        taskId,
-      });
-    },
-    onMutate: () => {
-      onSetIsSaved();
-    },
-    onError: (err: AxiosError) => {
-      const error = err?.response?.data ? err.response.data : "ERRORS.DEFAULT";
 
-      onSetIsSaved();
-
-      toast({
-        title: m(error),
-        variant: "destructive",
-      });
-    },
-    onSuccess: () => {
-      router.refresh();
-    },
-    mutationKey: ["toggleSaveTask"],
-  });
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenu>
@@ -119,41 +92,13 @@ export const TaskOptions = ({
         </DropdownMenuTrigger>
         <DropdownMenuPortal>
           <DropdownMenuContent align="end" sideOffset={-8}>
-            <DropdownMenuItem
-              onClick={() => {
-                toggleSaveTask();
-              }}
-            >
-              {isSaved ? (
-                <>
-                  <StarOff size={16} className="mr-2" />
-                  {t("REMOVE_FROM_FAV")}
-                </>
-              ) : (
-                <>
-                  <Star size={16} className="mr-2" />
-                  {t("ADD_TO_FAV")}
-                </>
-              )}
-            </DropdownMenuItem>
             {userRole && userRole !== "READ_ONLY" && (
-              <>
-                <DropdownMenuItem className="cursor-pointer" asChild>
-                  <Link
-                    href={`/dashboard/workspace/${workspaceId}/tasks/task/${taskId}/edit`}
-                  >
-                    <Pencil size={16} className="mr-2" />
-                    {t("EDIT")}
-                  </Link>
+              <DialogTrigger className="w-full">
+                <DropdownMenuItem className="cursor-pointer">
+                  <Trash size={16} className="mr-2" />
+                  {t("DELETE")}
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DialogTrigger className="w-full">
-                  <DropdownMenuItem className="cursor-pointer">
-                    <Trash size={16} className="mr-2" />
-                    {t("DELETE")}
-                  </DropdownMenuItem>
-                </DialogTrigger>
-              </>
+              </DialogTrigger>
             )}
           </DropdownMenuContent>
         </DropdownMenuPortal>

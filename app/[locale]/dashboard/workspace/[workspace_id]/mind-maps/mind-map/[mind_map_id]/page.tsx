@@ -1,14 +1,11 @@
-import { DashboardHeader } from "@/components/header/DashboardHeader";
-import { InviteUsers } from "@/components/inviteUsers/InviteUsers";
 import { MindMap } from "@/components/mindMaps/MindMap";
+import { MindMapActionButtons } from "@/components/mindMaps/MindMapActionButtons";
 import { MindMapPreviewCardWrapper } from "@/components/mindMaps/preview/MindMapPreviewCardWrapper";
+import { WorkspacePageHeader } from "@/components/workspacePages/WorkspacePageHeader";
 import { AutosaveIndicatorProvider } from "@/context/AutosaveIndicator";
 import { AutoSaveMindMapProvider } from "@/context/AutoSaveMindMap";
 import { getMindMap, getUserWorkspaceRole, getWorkspace } from "@/lib/api";
-import { changeCodeToEmoji } from "@/lib/changeCodeToEmoji";
 import { checkIfUserCompletedOnboarding } from "@/lib/checkIfUserCompletedOnboarding";
-import { LeaveWorkspace } from "@/components/workspaceMainPage/shortcuts/leaveWorkspace/LeaveWorkspace";
-import { AddTaskShortcut } from "@/components/addTaskShortCut/AddTaskShortcut";
 import { notFound } from "next/navigation";
 
 interface Params {
@@ -43,48 +40,39 @@ const MindMapPage = async ({
   return (
     <AutosaveIndicatorProvider>
       <AutoSaveMindMapProvider>
-       
-        <DashboardHeader
-        //@ts-ignore
-          addManualRoutes={[
-            {
-              name: "DASHBOARD",
-              href: "/dashboard",
-              useTranslate: true,
-            },
-            {
-              name: workspace.name,
-              href: `/dashboard/workspace/${workspace_id}`,
-            },
-            {
-              name: `${mindMap.title ? mindMap.title : "UNTITLED"}`,
-              href: "/",
-              emoji: changeCodeToEmoji(mindMap.emoji),
-              useTranslate: mindMap.title ? false : true,
-            },
-          ]}
-          showBackBtn={true}
-          hideBreadCrumb={true}
-          showingSavingStatus={true}
-        />
-        <div className="flex items-center container mx-auto gap-2">
-          {canEdit && <InviteUsers workspace={workspace} />}
-          <AddTaskShortcut userId={session.user.id} />
-        </div>
-        <main className="flex flex-col gap-2 h-full mb-4">
-          <MindMapPreviewCardWrapper
-            mindMap={mindMap}
+        <div className="container mx-auto px-4 py-6">
+          <WorkspacePageHeader
+            title={mindMap.title}
+            emoji={mindMap.emoji}
+            workspace={workspace}
             userRole={userRole}
-            isSavedByUser={isSavedByUser}
-          >
-            <MindMap
-              initialInfo={mindMap}
-              workspaceId={"cm2xbvkzx0003vxqszrp0sxa0"}
-              canEdit={false}
-              initialActiveTags={mindMap.tags}
-            />
-          </MindMapPreviewCardWrapper>
-        </main>
+            userId={session.user.id}
+            actions={
+              <MindMapActionButtons
+                mindMap={mindMap}
+                userRole={userRole}
+                isSavedByUser={isSavedByUser}
+              />
+            }
+          />
+          
+          <div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 rounded-xl p-4 md:p-6 shadow-sm border border-border/40">
+            <main className="flex flex-col gap-4 w-full overflow-x-auto">
+              <MindMapPreviewCardWrapper
+                mindMap={mindMap}
+                userRole={userRole}
+                isSavedByUser={isSavedByUser}
+              >
+                <MindMap
+                  initialInfo={mindMap}
+                  workspaceId={workspace_id}
+                  canEdit={false}
+                  initialActiveTags={mindMap.tags}
+                />
+              </MindMapPreviewCardWrapper>
+            </main>
+          </div>
+        </div>
       </AutoSaveMindMapProvider>
     </AutosaveIndicatorProvider>
   );

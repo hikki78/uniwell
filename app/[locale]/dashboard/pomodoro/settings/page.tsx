@@ -1,4 +1,3 @@
-import { DashboardHeader } from "@/components/header/DashboardHeader";
 import { SettingsContainer } from "@/components/pomodoro/SettingsContainer";
 import { getUserPomodoroSettings } from "@/lib/api";
 import { checkIfUserCompletedOnboarding } from "@/lib/checkIfUserCompletedOnboarding";
@@ -10,17 +9,17 @@ const PomodoroSettings = async () => {
   const pomodoroSettings = await getUserPomodoroSettings(session.user.id);
 
   return (
-    <>
-      {/* @ts-ignore */}
-      <DashboardHeader />
-      <div className="flex justify-end p-2 mt-2">
-        {/* @ts-ignore */}
+    <div className="container mx-auto px-4 py-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Pomodoro Settings</h1>
         <AddTaskShortcut userId={session.user.id} />
       </div>
-      <main className="flex flex-col gap-2 h-full">
-        <SettingsContainer pomodoroSettings={pomodoroSettings} />
-      </main>
-    </>
+      <div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 rounded-xl p-4 md:p-6 shadow-sm border border-border/40">
+        <main className="flex flex-col gap-4 w-full max-w-3xl mx-auto">
+          <SettingsContainer pomodoroSettings={pomodoroSettings} />
+        </main>
+      </div>
+    </div>
   );
 };
 

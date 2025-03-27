@@ -2,14 +2,22 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Sparkles } from "lucide-react";
+import { Menu, Sparkles, X } from "lucide-react";
 import { ThemeSwitcher } from "@/components/switchers/ThemeSwitcher";
 import { logout } from "@/lib/auth";
+import { OpenSidebar } from "./OpenSidebar";
+import { useState } from "react";
 
 export function DashboardHeader() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
   const handleLogout = () => {
     logout();
     window.location.href = "/";
+  };
+  
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
   };
 
   return (
@@ -17,11 +25,17 @@ export function DashboardHeader() {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
+            {/* Sidebar toggle button for mobile */}
+            <div className="mr-2">
+              <OpenSidebar />
+            </div>
+            
             <Link href="/dashboard" className="flex items-center gap-2">
               <Sparkles className="h-6 w-6 text-purple-500" />
               <span className="text-xl font-bold">UniWell</span>
             </Link>
             
+            {/* Desktop navigation */}
             <nav className="hidden md:flex items-center ml-10">
               <Link 
                 href="/dashboard" 
@@ -45,6 +59,16 @@ export function DashboardHeader() {
           </div>
           
           <div className="flex items-center space-x-4">
+            {/* Mobile menu toggle */}
+            <Button 
+              onClick={toggleMobileMenu} 
+              variant="ghost" 
+              size="icon" 
+              className="md:hidden"
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+            
             <ThemeSwitcher 
               alignHover="end"
               alignDropdown="end"
@@ -55,13 +79,50 @@ export function DashboardHeader() {
               onClick={handleLogout} 
               variant="ghost"
               size="sm"
-              className="hover:bg-purple-100 hover:text-purple-700 dark:hover:bg-purple-900/30 dark:hover:text-purple-300"
+              className="hidden md:flex hover:bg-purple-100 hover:text-purple-700 dark:hover:bg-purple-900/30 dark:hover:text-purple-300"
             >
               Logout
             </Button>
           </div>
         </div>
       </div>
+      
+      {/* Mobile navigation menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-background border-t border-border/40 py-4 px-4">
+          <nav className="flex flex-col space-y-4">
+            <Link 
+              href="/dashboard" 
+              className="font-medium py-2 text-sm hover:text-purple-600 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Dashboard
+            </Link>
+            <Link 
+              href="/dashboard/assigned-to-me" 
+              className="text-muted-foreground py-2 text-sm hover:text-purple-600 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Workspace
+            </Link>
+            <Link 
+              href="/dashboard/settings" 
+              className="text-muted-foreground py-2 text-sm hover:text-purple-600 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Settings
+            </Link>
+            <Button 
+              onClick={handleLogout} 
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start px-0 hover:bg-transparent hover:text-purple-600"
+            >
+              Logout
+            </Button>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

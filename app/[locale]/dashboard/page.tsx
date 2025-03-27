@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DashboardHeader } from "@/components/header/DashboardHeader";
-import Welcoming from "@/components/common/Welcoming";
+// DashboardHeader is now included in the layout
+import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Battery, Brain, Heart, Coffee, Sun, Music2, Quote, Monitor, Volume2, Moon, CloudRain, Timer, Droplets, Target, PlayCircle, PauseCircle, Zap, Sparkles, Cloud, CloudSun, CloudMoon, Stars, SkipBack, SkipForward } from "lucide-react";
+import { Battery, Brain, Heart, Coffee, Sun, Music2, Quote, Monitor, Volume2, Moon, CloudRain, Timer, Droplets, Target, PlayCircle, PauseCircle, Zap, Sparkles, Cloud, CloudSun, CloudMoon, Stars, SkipBack, SkipForward, Calendar } from "lucide-react";
 import { getScreenTime, updateScreenTime } from "@/lib/screen-time";
 
 const mockData = {
@@ -215,16 +215,9 @@ export default function WellbeingDashboard() {
 
   return (
     <>
-      <DashboardHeader />
       <main className="min-h-screen bg-background">
         <div className="container mx-auto p-6">
-          <Welcoming
-            hideOnDesktop
-            className="mb-6"
-            username="User"
-            name="Wellness"
-            surname="Explorer"
-          />
+
           
           <div className="space-y-8">
             <Card className={`p-8 bg-gradient-to-r ${style.gradient} ${style.darkGradient} border-none shadow-xl overflow-hidden relative`}>
@@ -240,7 +233,7 @@ export default function WellbeingDashboard() {
                   <p className="text-lg text-muted-foreground">
                     {style.secondary}
                   </p>
-                  <div className="flex gap-4 mt-6">
+                  <div className="flex flex-wrap gap-4 mt-6">
                     <div className="bg-white/30 dark:bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full flex items-center gap-3 shadow-sm">
                       <Sparkles className="h-5 w-5 text-amber-500" />
                       <span className="font-medium">Wellness Score: 85</span>
@@ -248,6 +241,10 @@ export default function WellbeingDashboard() {
                     <div className="bg-white/30 dark:bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full flex items-center gap-3 shadow-sm">
                       <Cloud className="h-5 w-5 text-sky-500" />
                       <span className="font-medium">{weather.temp}</span>
+                    </div>
+                    <div className="bg-white/30 dark:bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full flex items-center gap-3 shadow-sm">
+                      <Calendar className="h-5 w-5 text-green-500" />
+                      <span className="font-medium">{format(new Date(), 'MMMM d, yyyy')}</span>
                     </div>
                   </div>
                 </div>
