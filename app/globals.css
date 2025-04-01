@@ -1,0 +1,85 @@
+/* ...existing code... */
+
+:root {
+  /* ...existing code... */
+  --primary: 260 60% 55%; /* Purple - hsl(260, 60%, 55%) */
+  --primary-foreground: 210 40% 98%;
+  
+  --secondary: 270 58% 55%; /* #9c4dcc in HSL */
+  --secondary-foreground: 0 0% 100%;
+  
+  --accent: 273 82% 31%; /* #6b0f92 in HSL */
+  --accent-foreground: 0 0% 100%;
+
+  /* Other custom colors for purple theme */
+  --chart-1: 280 65% 60%;
+  --chart-2: 240 55% 60%;
+
+  /* Replace any other red-related CSS variables with purple equivalents */
+  /* ...existing code... */
+  
+  /* Purple theme gradients */
+  --gradient-primary: linear-gradient(to right, #8b5cf6, #6366f1);
+  --gradient-primary-soft: linear-gradient(to right, rgba(139, 92, 246, 0.2), rgba(99, 102, 241, 0.2));
+  --gradient-purple: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 50%, #7c3aed 100%);
+}
+
+.dark {
+  /* ...existing code... */
+  --primary: 265 65% 65%; /* Purple for dark mode - hsl(265, 65%, 65%) */
+  --primary-foreground: 210 40% 98%;
+  
+  --secondary: 270 58% 55%;
+  --secondary-foreground: 0 0% 100%;
+  
+  --accent: 273 82% 31%;
+  --accent-foreground: 0 0% 100%;
+
+  /* Other custom colors for purple theme in dark mode */
+  --chart-1: 285 70% 70%;
+  --chart-2: 245 60% 70%;
+  /* ...existing code... */
+  
+  /* Dark mode purple theme gradients */
+  --gradient-primary-soft: linear-gradient(to right, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.1));
+}
+
+/* ...existing code... */
+
+.hero-gradient {
+  background: radial-gradient(
+    circle at top right,
+    hsl(var(--primary) / 0.1),
+    transparent 70%
+  ),
+  radial-gradient(
+    circle at bottom left,
+    hsl(var(--chart-2) / 0.1),
+    transparent 70%
+  );
+}
+
+/* Custom background gradients for sections */
+.section-gradient {
+  background: radial-gradient(
+    circle at top right,
+    hsl(var(--primary) / 0.08),
+    transparent 60%
+  ),
+  radial-gradient(
+    circle at bottom left,
+    hsl(var(--chart-2) / 0.08),
+    transparent 60%
+  );
+}
+
+@layer base {}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
