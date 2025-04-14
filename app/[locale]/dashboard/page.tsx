@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 // DashboardHeader is now included in the layout
 import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
@@ -8,13 +8,26 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SpotifyPlayer } from "@/components/spotify/SpotifyPlayer";
-import { WellnessSettings } from "@/components/dashboard/WellnessSettings";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Battery, Brain, Heart, Coffee, Sun, Music2, Quote, Monitor, Volume2, Moon, CloudRain, Timer, Droplets, Target, PlayCircle, PauseCircle, Zap, Sparkles, Cloud, CloudSun, CloudMoon, Stars, SkipBack, SkipForward, Calendar, Settings } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import { Battery, Brain, Heart, Coffee, Sun, Music2, Quote, Monitor, Volume2, Moon, CloudRain, Timer, Droplet, Target, PlayCircle, PauseCircle, Zap, Sparkles, Cloud, CloudSun, CloudMoon, Stars, SkipBack, SkipForward, Calendar, Settings } from "lucide-react";
 import { getScreenTime, updateScreenTime } from "@/lib/screen-time";
 import { useSession } from "next-auth/react";
 import axios from "axios";
+import dynamic from "next/dynamic";
+import { MeditationTimer } from "@/components/dashboard/MeditationTimer";
+import { WaterReminder } from "@/components/dashboard/WaterReminder";
+import { ScreenTimeMonitor } from "@/components/dashboard/ScreenTimeMonitor";
+import { toast } from "sonner";
+
+// Import YouTubePlayer component with dynamic import to prevent SSR issues
+const YouTubePlayer = dynamic(() => import("@/components/music/YouTubePlayer"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-60">
+      <div className="animate-pulse text-purple-500">Loading music player...</div>
+    </div>
+  )
+});
 
 // Initial data structure that will be replaced with real data
 const initialData = {
@@ -60,21 +73,118 @@ const quotes = [
   { text: "The mind is everything. What you think you become.", author: "Buddha" },
 ];
 
+// Add these new types and constants
+interface MoodQuestion {
+  id: number;
+  question: string;
+  options?: {
+    label: string;
+    value: number;
+  }[];
+  type: 'choice' | 'rating';
+  max?: number;
+}
+
+interface MoodResponse {
+  date: string;
+  score: number;
+  responses: {
+    questionId: number;
+    value: number;
+  }[];
+}
+
+const moodQuestions: MoodQuestion[] = [
+  {
+    id: 1,
+    question: "How are you feeling today?",
+    options: [
+      { label: "Great", value: 10 },
+      { label: "Good", value: 8 },
+      { label: "Fine", value: 6 },
+      { label: "Ok", value: 4 },
+      { label: "Not bad", value: 2 },
+      { label: "Bad", value: 0 }
+    ],
+    type: 'choice'
+  },
+  {
+    id: 2,
+    question: "How much will you rate the last music you played?",
+    type: 'rating',
+    max: 10
+  },
+  {
+    id: 3,
+    question: "Have you completed all the tasks today?",
+    options: [
+      { label: "Yes", value: 10 },
+      { label: "Mostly done", value: 5.5 },
+      { label: "No", value: 0 }
+    ],
+    type: 'choice'
+  },
+  {
+    id: 4,
+    question: "How much will you rate your productivity today?",
+    type: 'rating',
+    max: 10
+  },
+  {
+    id: 5,
+    question: "How much will you rate your health today?",
+    type: 'rating',
+    max: 10
+  }
+];
+
+const getMoodSalutation = (score: number): string => {
+  const percentage = (score / 50) * 100;
+  if (percentage >= 90) return "Excellent mood!";
+  if (percentage >= 80) return "Great mood!";
+  if (percentage >= 70) return "Good mood!";
+  if (percentage >= 60) return "Positive mood!";
+  if (percentage >= 50) return "Decent mood!";
+  if (percentage >= 40) return "Fair mood";
+  if (percentage >= 30) return "Could be better";
+  if (percentage >= 20) return "Not so great";
+  return "Having a rough day";
+};
+
+// Add this function for pie chart rendering
+const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name, value }: any) => {
+  const RADIAN = Math.PI / 180;
+  const radius = outerRadius * 1.1;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+  return (
+    <text 
+      x={x} 
+      y={y} 
+      fill="hsl(var(--foreground))" 
+      textAnchor={x > cx ? 'start' : 'end'} 
+      dominantBaseline="central"
+      className="text-xs"
+    >
+      {`${name}: ${value}%`}
+    </text>
+  );
+};
+
 export default function WellbeingDashboard() {
   const { data: session } = useSession();
   const userId = session?.user?.id;
 
+  const [isClient, setIsClient] = useState(false);
   const [currentQuote, setCurrentQuote] = useState(quotes[0]);
-  // Music player state (needed for UI even though actual control is in SpotifyPlayer)
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState([50]);
+  // Music player state now managed by YouTubePlayer component
   const [screenTime, setScreenTime] = useState("0h 0m");
   const [weather, setWeather] = useState({ temp: '20°C', condition: 'Clear', icon: '' });
   const [timeOfDay, setTimeOfDay] = useState<'morning' | 'afternoon' | 'evening' | 'night'>('morning');
   const [meditationTime, setMeditationTime] = useState(300);
   const [isMediating, setIsMediating] = useState(false);
   const [waterIntake, setWaterIntake] = useState(0);
-  const [currentTab, setCurrentTab] = useState('habits');
   const [productivityScore, setProductivityScore] = useState(0);
   const [wellnessScore, setWellnessScore] = useState(0);
   const [moodData, setMoodData] = useState(initialData.weeklyMood);
@@ -93,7 +203,78 @@ export default function WellbeingDashboard() {
   // Refresh trigger for settings changes
   const [settingsUpdated, setSettingsUpdated] = useState(0);
   const [tasks, setTasks] = useState<{ total: number, completed: number }>({ total: 0, completed: 0 });
-
+  const [showMoodTracker, setShowMoodTracker] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [moodResponses, setMoodResponses] = useState<{[key: number]: number}>({});
+  const [dailyMoodScore, setDailyMoodScore] = useState<number | null>(null);
+  const [moodHistory, setMoodHistory] = useState<MoodResponse[]>([]);
+  const [hasTrackedToday, setHasTrackedToday] = useState(false);
+  const [pieChartData, setPieChartData] = useState<{ name: string; value: number; color: string }[]>([]);
+  const [ratingValue, setRatingValue] = useState<number>(5);
+  const [showResultsModal, setShowResultsModal] = useState(false);
+  const [isAiAssistantLoading, setIsAiAssistantLoading] = useState(false);
+  const [aiInsight, setAiInsight] = useState<string | null>(null);
+  
+  // Add state for tracking main activities goals and custom activities
+  const [activitiesState, setActivitiesState] = useState({
+    screenTime: { label: "Screen Time", value: "0", target: "0", unit: "hours" },
+    meditation: { label: "Meditation", value: "0", target: "0", unit: "minutes" },
+    water: { label: "Water Intake", value: "0", target: "0", unit: "ml" }
+  });
+  const [customActivities, setCustomActivities] = useState<{
+    id: string;
+    label: string;
+    value: string;
+    target: string;
+    unit: string;
+    isCompleted: boolean;
+  }[]>([]);
+  const [showAddActivity, setShowAddActivity] = useState(false);
+  const [newActivity, setNewActivity] = useState({ 
+    label: "", 
+    target: "", 
+    unit: "minutes" 
+  });
+  
+  // Replace API functions with local implementation
+  const getMoodInsight = useCallback((score: number): string => {
+    const percentage = (score / 50) * 100;
+    
+    // Array of encouraging messages based on score ranges
+    if (percentage >= 90) {
+      return "Your excellent mood today will help you accomplish anything you set your mind to!";
+    } else if (percentage >= 80) {
+      return "Great spirits lead to great achievements - keep up this positive energy!";
+    } else if (percentage >= 70) {
+      return "Your good mood is a solid foundation for a productive and fulfilling day.";
+    } else if (percentage >= 60) {
+      return "This positive attitude will help you navigate today's challenges with grace.";
+    } else if (percentage >= 50) {
+      return "A decent mood is something to build upon - try a quick walk to boost it further!";
+    } else if (percentage >= 40) {
+      return "Even in fair moods, you have the strength to accomplish meaningful things today.";
+    } else if (percentage >= 30) {
+      return "Remember that moods fluctuate - a few minutes of deep breathing can help improve yours.";
+    } else if (percentage >= 20) {
+      return "Be gentle with yourself today and focus on small self-care activities.";
+    } else {
+      return "Tough days are part of being human - reach out to a friend if you need support.";
+    }
+  }, []);
+  
+  // Update useEffect to use local implementation instead of API
+  useEffect(() => {
+    if (dailyMoodScore !== null) {
+      setIsAiAssistantLoading(true);
+      
+      // Simulate loading with setTimeout
+      setTimeout(() => {
+        setAiInsight(getMoodInsight(dailyMoodScore));
+        setIsAiAssistantLoading(false);
+      }, 1000);
+    }
+  }, [dailyMoodScore, getMoodInsight]);
+  
   useEffect(() => {
     const hour = new Date().getHours();
     if (hour >= 5 && hour < 12) setTimeOfDay('morning');
@@ -216,162 +397,284 @@ export default function WellbeingDashboard() {
     fetchCustomHabits();
   }, [userId, settingsUpdated]);
   
-  // Fetch mood data
+  // Updated useEffect that loads mood data from localStorage
   useEffect(() => {
     if (!userId) return;
     
-    const fetchMoodData = async () => {
+    const checkTodaysMood = () => {
       try {
-        const response = await axios.get(`/api/dashboard/mood?userId=${userId}`);
-        if (response.data && response.data.weeklyMood) {
-          setMoodData(response.data.weeklyMood);
+        // Check if mood has been tracked today using localStorage
+        if (typeof window !== 'undefined') {
+          const storedMoodData = localStorage.getItem(`moodData-${userId}`);
+          
+          if (storedMoodData) {
+            const moodData = JSON.parse(storedMoodData);
+            const today = new Date().toDateString();
+            
+            // Check if today's data exists
+            if (moodData.date === today) {
+              setHasTrackedToday(true);
+              setDailyMoodScore(moodData.score);
+            } else {
+              // Show mood tracker once on page load if not tracked today
+              setTimeout(() => {
+                setShowMoodTracker(true);
+              }, 1000);
+            }
+            
+            // Set up pie chart data
+            if (moodData.score) {
+              const percentScore = (moodData.score / 50) * 100;
+              const remaining = 100 - percentScore;
+              setPieChartData([
+                { name: 'Mood Score', value: percentScore, color: '#8b5cf6' },
+                { name: 'Remaining', value: remaining, color: '#e4e4e7' }
+              ]);
+            }
+          } else {
+            // No stored data - show tracker
+            setTimeout(() => {
+              setShowMoodTracker(true);
+            }, 1000);
+          }
+          
+          // Load mood history from localStorage
+          const historyData = localStorage.getItem(`moodHistory-${userId}`);
+          if (historyData) {
+            const history = JSON.parse(historyData);
+            setMoodHistory(history);
+            
+            // Update chart data from history
+            const chartData = initialData.weeklyMood.map(day => {
+              const found = history.find((h: MoodResponse) => {
+                const date = new Date(h.date);
+                return day.day === format(date, 'EEE');
+              });
+              
+              return {
+                day: day.day,
+                value: found ? (found.score / 50) * 100 : 0
+              };
+            });
+            
+            setMoodData(chartData);
+          }
         }
       } catch (error) {
-        console.error('Error fetching mood data:', error);
+        console.error('Error loading mood data:', error);
       }
     };
     
-    fetchMoodData();
+    checkTodaysMood();
   }, [userId]);
   
-  // Calculate wellness score based on multiple factors
-  useEffect(() => {
-    // Calculate wellness score based on:
-    // 1. Productivity score (30%)
-    // 2. Meditation completion (15%)
-    // 3. Water intake goal (15%)
-    // 4. Screen time within limits (15%)
-    // 5. Mood tracking (15%)
-    // 6. Music/relaxation (10%)
-    // 7. Custom habits (distributed from other categories)
+  // Updated function to save mood data using localStorage
+  const saveMoodData = () => {
+    if (!userId || Object.keys(moodResponses).length !== moodQuestions.length) return;
     
-    // Calculate base scores
-    const meditationScore = isMediating || dailyGoals.find(g => g.id === 4)?.completed ? 15 : 0;
-    const waterScore = (waterIntake / settings.waterIntakeGoal) * 15;
-    
-    // Calculate screen time score (lower is better)
-    const screenTimeHours = parseInt(screenTime.split('h')[0]) || 0;
-    const screenTimeMinutes = parseInt(screenTime.split('h')[1]?.split('m')[0]) || 0;
-    const totalScreenTimeMinutes = (screenTimeHours * 60) + screenTimeMinutes;
-    const screenTimeScore = totalScreenTimeMinutes <= settings.screenTimeLimit ? 15 : 
-      Math.max(0, 15 - (((totalScreenTimeMinutes - settings.screenTimeLimit) / 60) * 3));
-    
-    // Calculate mood score from the average of the week
-    const moodAverage = moodData.reduce((sum, day) => sum + day.value, 0) / moodData.length;
-    const moodScore = (moodAverage / 100) * 15;
-    
-    // Music/relaxation score
-    const musicScore = isPlaying ? 10 : 0;
-    
-    // Calculate custom habits score
-    let customHabitsScore = 0;
-    let totalCustomWeight = 0;
-    
-    if (customHabits.length > 0) {
-      // Sum up total weight of all custom habits
-      totalCustomWeight = customHabits.reduce((sum, habit) => sum + habit.weightInScore, 0);
+    try {
+      // Calculate total score
+      const totalScore = Object.values(moodResponses).reduce((sum, value) => sum + value, 0);
       
-      // Cap total weight at 30% to avoid overwhelming the score
-      const cappedTotalWeight = Math.min(30, totalCustomWeight);
+      // Format responses for storage
+      const responses = Object.entries(moodResponses).map(([questionId, value]) => ({
+        questionId: parseInt(questionId),
+        value
+      }));
       
-      // Calculate score for each habit
-      customHabits.forEach(habit => {
-        if (habit.active) {
-          const habitCompletion = habit.current / habit.target;
-          const weightRatio = habit.weightInScore / totalCustomWeight;
-          customHabitsScore += (habitCompletion * weightRatio * cappedTotalWeight);
+      const currentDate = new Date();
+      const today = currentDate.toDateString();
+      
+      // Create mood data object
+      const moodData = {
+        userId,
+        score: totalScore,
+        responses,
+        date: today,
+        timestamp: currentDate.toISOString()
+      };
+      
+      // Save to localStorage
+      if (typeof window !== 'undefined') {
+        // Save today's mood
+        localStorage.setItem(`moodData-${userId}`, JSON.stringify(moodData));
+        
+        // Update history
+        const historyData = localStorage.getItem(`moodHistory-${userId}`);
+        let history = historyData ? JSON.parse(historyData) : [];
+        
+        // Add today's entry to history or update if exists
+        const todayIndex = history.findIndex((h: MoodResponse) => 
+          new Date(h.date).toDateString() === today
+        );
+        
+        if (todayIndex >= 0) {
+          history[todayIndex] = moodData;
+        } else {
+          history.push(moodData);
         }
+        
+        // Limit history to last 30 days
+        if (history.length > 30) {
+          history = history.slice(history.length - 30);
+        }
+        
+        // Save updated history
+        localStorage.setItem(`moodHistory-${userId}`, JSON.stringify(history));
+      }
+      
+      // Update state
+      setDailyMoodScore(totalScore);
+      setHasTrackedToday(true);
+      
+      // Add to history state
+      const newHistory = [...moodHistory.filter(h => 
+        new Date(h.date).toDateString() !== today
+      ), {
+        date: currentDate.toISOString(),
+        score: totalScore,
+        responses
+      }];
+      
+      setMoodHistory(newHistory);
+      
+      // Update chart data
+      setMoodData(prevData => {
+        const today = format(new Date(), 'EEE');
+        return prevData.map(item => {
+          if (item.day === today) {
+            return { ...item, value: (totalScore / 50) * 100 };
+          }
+          return item;
+        });
       });
+      
+      // Update pie chart data
+      const percentScore = (totalScore / 50) * 100;
+      const remaining = 100 - percentScore;
+      setPieChartData([
+        { name: 'Mood Score', value: percentScore, color: '#8b5cf6' },
+        { name: 'Remaining', value: remaining, color: '#e4e4e7' }
+      ]);
+      
+      // Close tracker and show results
+      setShowMoodTracker(false);
+      setCurrentQuestionIndex(0);
+      setMoodResponses({});
+      setShowResultsModal(true);
+      
+      toast.success("Mood tracked successfully!");
+    } catch (error) {
+      console.error('Error saving mood data:', error);
+      toast.error("Failed to save mood data. Please try again.");
     }
+  };
+  
+  // Handle answering a question
+  const answerQuestion = (value: number) => {
+    // Save response
+    setMoodResponses(prev => ({
+      ...prev,
+      [moodQuestions[currentQuestionIndex].id]: value
+    }));
     
-    // Adjust other scores if custom habits exist
-    const adjustmentFactor = totalCustomWeight > 0 ? Math.max(0.7, 1 - (totalCustomWeight / 100)) : 1;
+    // Move to next question or finish
+    if (currentQuestionIndex < moodQuestions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+    } else {
+      saveMoodData();
+    }
+  };
+  
+  // Calculate wellness score based on the new algorithm
+  useEffect(() => {
+    const calculateWellnessScore = () => {
+      // 1. Mood score component (30%)
+      let moodComponent = 0;
+      if (dailyMoodScore !== null) {
+        moodComponent = (dailyMoodScore / 50) * 100 * 0.3; // 30% weight
+      }
+      
+      // 2. Screen time component (20%)
+      // Lower is better for screen time (percentage of limit not exceeded)
+      let screenTimeComponent = 0;
+      const screenTimeValue = parseFloat(activitiesState.screenTime.value) || 0;
+      const screenTimeTarget = parseFloat(activitiesState.screenTime.target) || 1;
+      // If screen time is below target, it's good (100%)
+      // If it's above target, calculate the inverse percentage, but not below 0
+      const screenTimePercentage = screenTimeTarget > 0 
+        ? Math.max(0, Math.min(100, 100 - ((screenTimeValue - screenTimeTarget) / screenTimeTarget * 100)))
+        : 0;
+      screenTimeComponent = screenTimePercentage * 0.2; // 20% weight
+      
+      // 3. Meditation component (20%)
+      let meditationComponent = 0;
+      const meditationValue = parseFloat(activitiesState.meditation.value) || 0;
+      const meditationTarget = parseFloat(activitiesState.meditation.target) || 1;
+      const meditationPercentage = meditationTarget > 0 
+        ? Math.min(100, (meditationValue / meditationTarget) * 100)
+        : 0;
+      meditationComponent = meditationPercentage * 0.2; // 20% weight
+      
+      // 4. Water intake component (20%)
+      let waterComponent = 0;
+      const waterValue = parseInt(activitiesState.water.value) || 0;
+      const waterTarget = parseInt(activitiesState.water.target) || 1;
+      const waterPercentage = waterTarget > 0
+        ? Math.min(100, (waterValue / waterTarget) * 100)
+        : 0;
+      waterComponent = waterPercentage * 0.2; // 20% weight
+      
+      // 5. Custom activities component (10%)
+      let activitiesComponent = 0;
+      if (customActivities.length > 0) {
+        const completedActivities = customActivities.filter(a => a.isCompleted).length;
+        const activitiesPercentage = (completedActivities / customActivities.length) * 100;
+        activitiesComponent = activitiesPercentage * 0.1; // 10% weight
+      } else {
+        // If no custom activities, distribute the 10% to the other components evenly
+        if (dailyMoodScore !== null) moodComponent += 2.5; // additional 2.5%
+        screenTimeComponent += 2.5; // additional 2.5%
+        meditationComponent += 2.5; // additional 2.5%
+        waterComponent += 2.5; // additional 2.5%
+      }
+      
+      // Calculate total wellness score
+      const calculatedScore = Math.max(
+        10, // Minimum wellness score
+        Math.round(moodComponent + screenTimeComponent + meditationComponent + waterComponent + activitiesComponent)
+      );
+      
+      setWellnessScore(calculatedScore);
+    };
     
-    // Calculate total wellness score
-    const totalScore = Math.round(
-      (productivityScore * 0.3 * adjustmentFactor) + 
-      (meditationScore * adjustmentFactor) + 
-      (waterScore * adjustmentFactor) + 
-      (screenTimeScore * adjustmentFactor) + 
-      (moodScore * adjustmentFactor) + 
-      (musicScore * adjustmentFactor) +
-      customHabitsScore
-    );
+    // Calculate score when any component changes
+    calculateWellnessScore();
     
-    setWellnessScore(Math.min(100, totalScore));
-  }, [productivityScore, isMediating, waterIntake, screenTime, moodData, isPlaying, dailyGoals, settings, customHabits]);
+    // Set up interval to recalculate score periodically
+    const interval = setInterval(calculateWellnessScore, 60 * 1000); // Update every minute
+    
+    return () => clearInterval(interval);
+  }, [
+    dailyMoodScore, 
+    activitiesState.screenTime.value,
+    activitiesState.screenTime.target,
+    activitiesState.meditation.value, 
+    activitiesState.meditation.target,
+    activitiesState.water.value,
+    activitiesState.water.target,
+    customActivities
+  ]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (isMediating && meditationTime > 0) {
       timer = setInterval(() => {
-        setMeditationTime((prev) => prev - 1);
+        setMeditationTime((prev: number) => prev - 1);
       }, 1000);
     }
     return () => clearInterval(timer);
   }, [isMediating, meditationTime]);
-
-  // Comment out the Spotify initialization useEffect
-  /*
-  useEffect(() => {
-    const loadSpotify = async () => {
-      if (typeof window !== 'undefined') {
-        try {
-          const { getSpotifyApi, initializeSpotifyPlayer } = await import('@/lib/spotify');
-          const api = getSpotifyApi();
-          await api.authenticate();
-
-          await initializeSpotifyPlayer();
-          const player = new window.Spotify.Player({
-            name: 'Wellbeing Dashboard',
-            getOAuthToken: (cb: (token: string) => void) => {
-              //@ts-ignore
-              api.getAccessToken().then((token) => cb(token.access_token));
-            },
-          });
-
-          player.addListener('ready', ({ device_id }: { device_id: string }) => {
-            setDeviceId(device_id);
-          });
-
-          player.addListener('player_state_changed', (state: any) => {
-            if (state) {
-              setCurrentTrack(state.track_window.current_track);
-              setIsPlaying(!state.paused);
-            }
-          });
-
-          await player.connect();
-          setSpotifyPlayer(player);
-        } catch (error) {
-          console.error('Spotify initialization error:', error);
-        }
-      }
-    };
-
-    loadSpotify();
-
-    return () => {
-      if (spotifyPlayer) {
-        spotifyPlayer.disconnect();
-      }
-    };
-  }, []);
-  */
-
-  // Comment out Spotify control functions
-  // Music control functions (placeholders for UI, actual control is in SpotifyPlayer)
-  const handlePrevious = () => {
-    // Placeholder for previous track functionality
-  };
-
-  const handleNext = () => {
-    // Placeholder for next track functionality
-  };
-
-  const togglePlayback = () => {
-    setIsPlaying(!isPlaying);
-  };
 
   const getGreetingStyle = () => {
     const styles = {
@@ -408,6 +711,146 @@ export default function WellbeingDashboard() {
   };
 
   const style = getGreetingStyle();
+
+  // Effect to sync the main activities data
+  useEffect(() => {
+    if (!isClient) return;
+    
+    try {
+      // Load custom activities from localStorage
+      const storedActivities = localStorage.getItem(`customActivities-${userId}`);
+      if (storedActivities) {
+        setCustomActivities(JSON.parse(storedActivities));
+      }
+      
+      // Update the main activities when their targets change
+      const screenTimeTarget = localStorage.getItem(`screenTimeLimit-${userId}`);
+      const screenTimeData = localStorage.getItem(`screenTimeData-${userId}`);
+      const meditationDuration = localStorage.getItem(`meditationDuration-${userId}`);
+      const waterGoalData = localStorage.getItem(`waterGoal-${userId}`);
+      const waterReminderData = localStorage.getItem(`waterReminder-${userId}`);
+      
+      let screenTimeUsed = "0";
+      let screenTimeLimit = "0";
+      let meditationTarget = "0";
+      let waterAmount = "0";
+      let waterGoal = "0";
+      
+      if (screenTimeTarget) {
+        screenTimeLimit = (parseInt(screenTimeTarget) / 60).toFixed(1); // Convert minutes to hours
+      }
+      
+      if (screenTimeData) {
+        const data = JSON.parse(screenTimeData);
+        if (data.timeUsed) {
+          screenTimeUsed = (data.timeUsed / 60).toFixed(1); // Convert minutes to hours
+        }
+      }
+      
+      if (meditationDuration) {
+        meditationTarget = meditationDuration;
+      }
+      
+      if (waterGoalData) {
+        waterGoal = waterGoalData;
+      }
+      
+      if (waterReminderData) {
+        const data = JSON.parse(waterReminderData);
+        if (data.waterAmount !== undefined) {
+          waterAmount = data.waterAmount.toString();
+        }
+      }
+      
+      setActivitiesState({
+        screenTime: { 
+          label: "Screen Time", 
+          value: screenTimeUsed, 
+          target: screenTimeLimit, 
+          unit: "hours" 
+        },
+        meditation: { 
+          label: "Meditation", 
+          value: "0", // This will update when used
+          target: meditationTarget, 
+          unit: "minutes" 
+        },
+        water: { 
+          label: "Water Intake", 
+          value: waterAmount, 
+          target: waterGoal, 
+          unit: "ml" 
+        }
+      });
+    } catch (error) {
+      console.error("Error loading activities data:", error);
+    }
+  }, [userId, isClient, settingsUpdated]);
+  
+  // Function to add a new custom activity
+  const addCustomActivity = () => {
+    if (!newActivity.label || !newActivity.target) {
+      toast.error("Please provide both activity name and target");
+      return;
+    }
+    
+    const id = `activity-${Date.now()}`;
+    const activity = {
+      id,
+      label: newActivity.label,
+      value: "0",
+      target: newActivity.target,
+      unit: newActivity.unit,
+      isCompleted: false
+    };
+    
+    const updatedActivities = [...customActivities, activity];
+    setCustomActivities(updatedActivities);
+    
+    // Save to localStorage
+    localStorage.setItem(`customActivities-${userId}`, JSON.stringify(updatedActivities));
+    
+    // Reset form
+    setNewActivity({ label: "", target: "", unit: "minutes" });
+    setShowAddActivity(false);
+    
+    toast.success(`Added ${activity.label} activity`);
+  };
+  
+  // Function to update a custom activity
+  const updateCustomActivity = (id: string, isCompleted: boolean) => {
+    const updatedActivities = customActivities.map(activity => {
+      if (activity.id === id) {
+        return { 
+          ...activity, 
+          isCompleted, 
+          value: isCompleted ? activity.target : "0" 
+        };
+      }
+      return activity;
+    });
+    
+    setCustomActivities(updatedActivities);
+    
+    // Save to localStorage
+    localStorage.setItem(`customActivities-${userId}`, JSON.stringify(updatedActivities));
+  };
+  
+  // Function to delete a custom activity
+  const deleteCustomActivity = (id: string) => {
+    const updatedActivities = customActivities.filter(activity => activity.id !== id);
+    setCustomActivities(updatedActivities);
+    
+    // Save to localStorage
+    localStorage.setItem(`customActivities-${userId}`, JSON.stringify(updatedActivities));
+    
+    toast.success("Activity removed");
+  };
+
+  // Add useEffect to set isClient flag when component mounts
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   return (
     <>
@@ -456,199 +899,477 @@ export default function WellbeingDashboard() {
               <p className="mt-2 text-right text-muted-foreground">— {currentQuote.author}</p>
             </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="p-4 flex flex-col gap-2">
-                <div className="flex items-center justify-between">
+            {/* Mood Score Section */}
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Heart className="h-6 w-6 text-pink-500" />
+                  <h3 className="text-xl font-semibold">Mood Score</h3>
+                </div>
+                {hasTrackedToday ? (
                   <div className="flex items-center gap-2">
-                    <Timer className="h-5 w-5 text-purple-500" />
-                    <h3 className="font-medium">Meditation Timer</h3>
+                    <span className="text-sm text-muted-foreground">Already tracked today</span>
                   </div>
-                  <Button
+                ) : (
+                  <Button 
                     variant="outline"
                     size="sm"
-                    onClick={() => setIsMediating(!isMediating)}
+                    onClick={() => setShowMoodTracker(true)}
+                    className="flex items-center gap-1"
                   >
-                    {isMediating ? <PauseCircle className="h-4 w-4" /> : <PlayCircle className="h-4 w-4" />}
+                    Track Today's Mood
                   </Button>
-                </div>
-                <div className="text-3xl font-bold text-center py-4">
-                  {Math.floor(meditationTime / 60)}:{(meditationTime % 60).toString().padStart(2, '0')}
-                </div>
-              </Card>
-
-              <Card className="p-4 flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Droplets className="h-5 w-5 text-blue-500" />
-                    <h3 className="font-medium">Water Intake</h3>
+                )}
+              </div>
+              
+              {dailyMoodScore !== null && (
+                <div className="bg-secondary/30 rounded-lg p-4 mb-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-medium">Today's Mood:</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl font-bold">{Math.round((dailyMoodScore / 50) * 100)}%</span>
+                      <span className="text-md text-muted-foreground">
+                        {getMoodSalutation(dailyMoodScore)}
+                      </span>
+                    </div>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setWaterIntake(Math.min(waterIntake + 250, 2000))}
-                  >
-                    +250ml
-                  </Button>
+                  <Progress 
+                    value={(dailyMoodScore / 50) * 100} 
+                    className="h-2 mt-2"
+                  />
+                  
+                  {/* AI Insight Section */}
+                  {(aiInsight || isAiAssistantLoading) && (
+                    <div className="mt-3 pt-3 border-t border-border/30">
+                      <div className="flex items-start gap-2">
+                        <Sparkles className="h-4 w-4 text-primary mt-0.5" />
+                        <div>
+                          <span className="text-xs font-medium text-muted-foreground">AI Insight:</span>
+                          <p className="text-sm mt-1">
+                            {isAiAssistantLoading ? (
+                              <span className="text-muted-foreground animate-pulse">Analyzing your mood data...</span>
+                            ) : (
+                              aiInsight
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <Progress value={(waterIntake / settings.waterIntakeGoal) * 100} className="h-2" />
-                <span className="text-sm text-muted-foreground">{waterIntake}ml / {settings.waterIntakeGoal}ml</span>
-              </Card>
+              )}
+              
+              <div className="h-[300px] w-full flex items-center justify-center">
+                {dailyMoodScore !== null ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: 'Mood Score', value: Math.round((dailyMoodScore / 50) * 100), color: '#8b5cf6' },
+                          { name: 'Remaining', value: 100 - Math.round((dailyMoodScore / 50) * 100), color: '#e4e4e7' }
+                        ]}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ value, name, index }) => index === 0 ? `${value}%` : null}
+                        outerRadius={100}
+                        innerRadius={70}
+                        fill="#8b5cf6"
+                        dataKey="value"
+                      >
+                        <Cell fill="#8b5cf6" />
+                        <Cell fill="#e4e4e7" />
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="text-center text-muted-foreground">
+                    <p>Track your mood to see your score</p>
+                  </div>
+                )}
+              </div>
+            </Card>
 
-              <Card className="p-4 flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <Monitor className="h-5 w-5 text-emerald-500" />
-                  <h3 className="font-medium">Screen Time Today</h3>
-                </div>
-                <div className="text-2xl font-bold">{screenTime}</div>
-                <span className="text-sm text-muted-foreground">Daily Limit: {Math.floor(settings.screenTimeLimit / 60)}h {settings.screenTimeLimit % 60}m</span>
-              </Card>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {userId && (
+                <MeditationTimer 
+                  userId={userId} 
+                  onComplete={() => setIsMediating(false)}
+                />
+              )}
 
-              <Card className="p-4 flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <Zap className="h-5 w-5 text-amber-500" />
-                  <h3 className="font-medium">Productivity</h3>
-                </div>
-                <Progress value={productivityScore} className="h-2" />
-                <span className="text-sm text-muted-foreground">{productivityScore}% Productive Today</span>
-                <div className="text-xs text-muted-foreground mt-1">
-                  {tasks.completed} of {tasks.total} tasks completed
-                </div>
-              </Card>
+              {userId && (
+                <WaterReminder
+                  userId={userId}
+                  onSettingsChange={() => setSettingsUpdated(prev => prev + 1)}
+                />
+              )}
+
+              {userId && (
+                <ScreenTimeMonitor
+                  userId={userId}
+                  onSettingsChange={() => setSettingsUpdated(prev => prev + 1)}
+                  initialLimit={settings.screenTimeLimit}
+                />
+              )}
             </div>
 
-            <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
-                <TabsTrigger value="habits">Daily Goals</TabsTrigger>
-                <TabsTrigger value="mood">Mood Tracking</TabsTrigger>
-                <TabsTrigger value="music">Spotify Music</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="mood" className="mt-6">
-                <Card className="p-6">
-                  <h3 className="text-xl font-semibold mb-4">Weekly Mood Overview</h3>
-                  <div className="h-[300px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={moodData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="day" />
-                        <YAxis />
-                        <Tooltip />
-                        <Line 
-                          type="monotone" 
-                          dataKey="value" 
-                          stroke="hsl(var(--primary))"
-                          strokeWidth={2}
-                          dot={{ fill: "hsl(var(--primary))" }}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="habits" className="mt-6">
-                <Card className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Audio Corner */}
+              <div className="flex flex-col">
+                <Card className="p-6 flex-grow bg-gradient-to-r from-indigo-50/50 to-purple-50/50 dark:from-indigo-950/30 dark:to-purple-950/30">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-2">
-                      <Target className="h-6 w-6 text-primary" />
-                      <h3 className="text-xl font-semibold">Goals & Habits</h3>
+                      <Music2 className="h-6 w-6 text-indigo-500" />
+                      <h3 className="text-xl font-semibold">Audio Corner</h3>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="h-8 w-8 p-0 rounded-full"
+                    >
+                      <Volume2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  <div className="rounded-lg overflow-hidden border shadow-sm">
+                    {/* Integrated YouTube Player */}
+                    {/* For YouTube API, name your environment variable: NEXT_PUBLIC_YOUTUBE_API_KEY */}
+                    <YouTubePlayer inMusicSection={true} />
+                  </div>
+                  
+                  <div className="mt-4 text-xs text-muted-foreground text-center">
+                    Powered by YouTube - Relax with your favorite music and podcasts
+                  </div>
+                </Card>
+              </div>
+
+              {/* Activities Corner */}
+              <div className="flex flex-col">
+                <Card className="p-6 flex-grow bg-gradient-to-r from-emerald-50/50 to-teal-50/50 dark:from-emerald-950/30 dark:to-teal-950/30">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-2">
+                      <Target className="h-6 w-6 text-emerald-500" />
+                      <h3 className="text-xl font-semibold">Activities Corner</h3>
                     </div>
                     {userId && (
-                      <WellnessSettings 
-                        userId={userId} 
-                        onSettingsChange={() => setSettingsUpdated(prev => prev + 1)} 
-                      />
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowAddActivity(!showAddActivity)}
+                          className="h-8 rounded-full text-emerald-600 dark:text-emerald-400"
+                        >
+                          {showAddActivity ? 'Cancel' : 'Add Activity'}
+                        </Button>
+                      </div>
                     )}
                   </div>
                   
-                  <div className="space-y-4">
-                    {/* Default goals */}
-                    {dailyGoals.map((goal) => (
-                      <div
-                        key={goal.id}
-                        className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50 cursor-pointer"
-                        onClick={() => setDailyGoals(dailyGoals.map(g => 
-                          g.id === goal.id ? { ...g, completed: !g.completed } : g
-                        ))}
-                      >
-                        <div className={`h-5 w-5 rounded-full border-2 ${goal.completed ? 'bg-primary border-primary' : 'border-primary'}`} />
-                        <span className={goal.completed ? 'line-through text-muted-foreground' : ''}>
-                          {goal.text}
-                        </span>
+                  {/* Add Activity Form */}
+                  {showAddActivity && (
+                    <div className="mb-4 p-4 rounded-lg border bg-white/80 dark:bg-black/20">
+                      <h4 className="text-sm font-medium mb-2">Add New Activity</h4>
+                      <div className="space-y-2">
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-xs text-muted-foreground mb-1 block">Activity Name</label>
+                            <input 
+                              type="text"
+                              placeholder="e.g., Running"
+                              value={newActivity.label}
+                              onChange={(e) => setNewActivity({...newActivity, label: e.target.value})}
+                              className="w-full h-8 px-2 text-sm rounded-md border"
+                            />
+                          </div>
+                          <div className="flex gap-2">
+                            <div className="flex-1">
+                              <label className="text-xs text-muted-foreground mb-1 block">Target</label>
+                              <input 
+                                type="text"
+                                placeholder="e.g., 30"
+                                value={newActivity.target}
+                                onChange={(e) => setNewActivity({...newActivity, target: e.target.value})}
+                                className="w-full h-8 px-2 text-sm rounded-md border"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-muted-foreground mb-1 block">Unit</label>
+                              <select
+                                value={newActivity.unit}
+                                onChange={(e) => setNewActivity({...newActivity, unit: e.target.value})}
+                                className="h-8 px-2 text-sm rounded-md border"
+                              >
+                                <option value="minutes">minutes</option>
+                                <option value="hours">hours</option>
+                                <option value="km">km</option>
+                                <option value="steps">steps</option>
+                                <option value="times">times</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        <Button 
+                          onClick={addCustomActivity}
+                          className="w-full mt-2 bg-emerald-500 hover:bg-emerald-600 text-white"
+                        >
+                          Add Activity
+                        </Button>
                       </div>
-                    ))}
+                    </div>
+                  )}
+                  
+                  <div className="space-y-4 rounded-lg border p-4 bg-white/50 dark:bg-black/10">
+                    {/* Main Activities */}
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-medium">Main Activities</h4>
+                      
+                      {/* Screen Time */}
+                      <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-secondary/50">
+                        <div className="flex items-center gap-3">
+                          <Monitor className="h-5 w-5 text-emerald-600" />
+                          <div>
+                            <span className="text-sm font-medium">Screen Time</span>
+                            <div className="text-xs text-muted-foreground">
+                              {activitiesState.screenTime.value} / {activitiesState.screenTime.target} {activitiesState.screenTime.unit}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {Math.min(100, (parseFloat(activitiesState.screenTime.value) / parseFloat(activitiesState.screenTime.target) * 100) || 0).toFixed(0)}%
+                        </div>
+                      </div>
+                      
+                      {/* Meditation */}
+                      <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-secondary/50">
+                        <div className="flex items-center gap-3">
+                          <Heart className="h-5 w-5 text-emerald-600" />
+                          <div>
+                            <span className="text-sm font-medium">Meditation</span>
+                            <div className="text-xs text-muted-foreground">
+                              {activitiesState.meditation.value} / {activitiesState.meditation.target} {activitiesState.meditation.unit}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {Math.min(100, (parseFloat(activitiesState.meditation.value) / parseFloat(activitiesState.meditation.target) * 100) || 0).toFixed(0)}%
+                        </div>
+                      </div>
+                      
+                      {/* Water Intake */}
+                      <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-secondary/50">
+                        <div className="flex items-center gap-3">
+                          <Droplet className="h-5 w-5 text-emerald-600" />
+                          <div>
+                            <span className="text-sm font-medium">Water Intake</span>
+                            <div className="text-xs text-muted-foreground">
+                              {parseInt(activitiesState.water.value) >= 1000 
+                                ? `${(parseInt(activitiesState.water.value)/1000).toFixed(1)}L / ${(parseInt(activitiesState.water.target)/1000).toFixed(1)}L` 
+                                : `${activitiesState.water.value} / ${activitiesState.water.target} ${activitiesState.water.unit}`}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {Math.min(100, (parseInt(activitiesState.water.value) / parseInt(activitiesState.water.target) * 100) || 0).toFixed(0)}%
+                        </div>
+                      </div>
+                    </div>
                     
-                    {/* Custom habits */}
-                    {customHabits.length > 0 && (
-                      <div className="mt-6 pt-6 border-t">
-                        <h4 className="text-lg font-medium mb-4">Custom Habits</h4>
-                        {customHabits.map((habit) => (
+                    {/* Custom Activities */}
+                    {customActivities.length > 0 && (
+                      <div className="mt-6 pt-4 border-t">
+                        <div className="flex justify-between">
+                          <h4 className="text-sm font-medium mb-2">Custom Activities</h4>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="h-6 p-0 text-xs text-muted-foreground hover:text-foreground"
+                            onClick={() => toast.info("Tap activities to mark as complete. Long press to delete.")}
+                          >
+                            ?
+                          </Button>
+                        </div>
+                        
+                        {customActivities.map((activity) => (
                           <div
-                            key={habit.id}
-                            className="flex items-center justify-between gap-3 p-3 rounded-lg bg-secondary/50 mb-3"
+                            key={activity.id}
+                            className="flex items-center justify-between gap-3 p-3 rounded-lg bg-secondary/50 mb-2"
+                            onClick={() => updateCustomActivity(activity.id, !activity.isCompleted)}
+                            onContextMenu={(e) => {
+                              e.preventDefault();
+                              deleteCustomActivity(activity.id);
+                            }}
                           >
                             <div className="flex items-center gap-3">
                               <div 
-                                className={`h-5 w-5 rounded-full border-2 cursor-pointer ${habit.current >= habit.target ? 'bg-primary border-primary' : 'border-primary'}`}
-                                onClick={() => {
-                                  // Toggle completion status
-                                  const newValue = habit.current >= habit.target ? 0 : habit.target;
-                                  axios.put(`/api/dashboard/habits?habitId=${habit.id}`, {
-                                    current: newValue,
-                                    streak: newValue > 0 ? habit.streak + 1 : habit.streak
-                                  }).then(() => setSettingsUpdated(prev => prev + 1));
-                                }}
+                                className={`h-5 w-5 rounded-full border-2 cursor-pointer ${activity.isCompleted ? 'bg-emerald-500 border-emerald-500' : 'border-emerald-500'}`}
                               />
                               <div>
-                                <span className={habit.current >= habit.target ? 'line-through text-muted-foreground' : ''}>
-                                  {habit.name}
+                                <span className={`text-sm font-medium ${activity.isCompleted ? 'line-through text-muted-foreground' : ''}`}>
+                                  {activity.label}
                                 </span>
-                                <div className="text-xs text-muted-foreground mt-1">
-                                  Progress: {habit.current}/{habit.target} | Streak: {habit.streak} days
+                                <div className="text-xs text-muted-foreground">
+                                  Target: {activity.target} {activity.unit}
                                 </div>
                               </div>
                             </div>
-                            
-                            <div className="flex items-center gap-2">
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                className="h-8 w-8 p-0"
-                                onClick={() => {
-                                  // Increment progress
-                                  axios.put(`/api/dashboard/habits?habitId=${habit.id}`, {
-                                    current: Math.min(habit.current + 1, habit.target)
-                                  }).then(() => setSettingsUpdated(prev => prev + 1));
-                                }}
-                              >
-                                +
-                              </Button>
-                            </div>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteCustomActivity(activity.id);
+                              }}
+                            >
+                              ×
+                            </Button>
                           </div>
                         ))}
                       </div>
                     )}
                   </div>
                 </Card>
-              </TabsContent>
-
-              <TabsContent value="music" className="mt-6">
-                <Card className="p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-2">
-                      <Music2 className="h-6 w-6 text-primary" />
-                      <h3 className="text-xl font-semibold">Spotify Music</h3>
-                    </div>
-                  </div>
-
-                  {/* Integrated Spotify Player */}
-                  <SpotifyPlayer inMusicSection={true} />
-                </Card>
-              </TabsContent>
-            </Tabs>
+              </div>
+            </div>
           </div>
         </div>
       </main>
+      
+      {/* Mood Tracker Modal */}
+      {showMoodTracker && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-card w-full max-w-md rounded-lg shadow-lg p-6">
+            <h3 className="text-xl font-semibold mb-6">Track Your Mood</h3>
+            
+            <div className="mb-6">
+              <h4 className="text-lg mb-4">
+                {moodQuestions[currentQuestionIndex].question}
+              </h4>
+              
+              {moodQuestions[currentQuestionIndex].type === 'choice' ? (
+                <div className="grid grid-cols-2 gap-3">
+                  {moodQuestions[currentQuestionIndex].options?.map((option) => (
+                    <Button
+                      key={option.label}
+                      variant="outline"
+                      className="h-12"
+                      onClick={() => answerQuestion(option.value)}
+                    >
+                      {option.label}
+                    </Button>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>Low</span>
+                    <span>High</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="range"
+                      min="0"
+                      max={moodQuestions[currentQuestionIndex].max || 10}
+                      step="1"
+                      defaultValue="5"
+                      value={ratingValue}
+                      className="w-full h-2 rounded-full"
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value);
+                        setRatingValue(value);
+                      }}
+                    />
+                    <span className="w-10 text-center">{ratingValue}</span>
+                  </div>
+                  <Button 
+                    className="w-full mt-4"
+                    onClick={() => answerQuestion(ratingValue)}
+                  >
+                    {currentQuestionIndex === moodQuestions.length - 1 ? "Show Result" : "Next"}
+                  </Button>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>Question {currentQuestionIndex + 1} of {moodQuestions.length}</span>
+              <button
+                type="button"
+                className="text-sm text-muted-foreground hover:text-foreground"
+                onClick={() => {
+                  setShowMoodTracker(false);
+                  setCurrentQuestionIndex(0);
+                  setMoodResponses({});
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Result Modal */}
+      {showResultsModal && dailyMoodScore !== null && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-card w-full max-w-md rounded-lg shadow-lg p-6">
+            <h3 className="text-xl font-semibold mb-6">Your Mood Score</h3>
+            
+            <div className="text-center mb-6">
+              <div className="mb-4">
+                <span className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
+                  {Math.round((dailyMoodScore / 50) * 100)}%
+                </span>
+              </div>
+              
+              <div className="text-xl font-medium">
+                {getMoodSalutation(dailyMoodScore)}
+              </div>
+              
+              <div className="mt-6 text-muted-foreground text-sm">
+                <p>Based on your responses to the 5 questions:</p>
+                <div className="mt-2 grid grid-cols-1 gap-2">
+                  <div className="bg-secondary/30 p-2 rounded-md">
+                    90-100%: "Excellent mood!"
+                  </div>
+                  <div className="bg-secondary/30 p-2 rounded-md">
+                    80-89%: "Great mood!"
+                  </div>
+                  <div className="bg-secondary/30 p-2 rounded-md">
+                    70-79%: "Good mood!"
+                  </div>
+                  <div className="bg-secondary/30 p-2 rounded-md">
+                    60-69%: "Positive mood!"
+                  </div>
+                  <div className="bg-secondary/30 p-2 rounded-md">
+                    50-59%: "Decent mood!"
+                  </div>
+                  <div className="bg-secondary/30 p-2 rounded-md">
+                    40-49%: "Fair mood"
+                  </div>
+                  <div className="bg-secondary/30 p-2 rounded-md">
+                    30-39%: "Could be better"
+                  </div>
+                  <div className="bg-secondary/30 p-2 rounded-md">
+                    20-29%: "Not so great"
+                  </div>
+                  <div className="bg-secondary/30 p-2 rounded-md">
+                    0-19%: "Having a rough day"
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <Button 
+              className="w-full"
+              onClick={() => setShowResultsModal(false)}
+            >
+              Close
+            </Button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

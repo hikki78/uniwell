@@ -3,6 +3,13 @@ import { ToggleSidebarProvider } from "@/context/ToggleSidebar";
 import { UserActivityStatusProvider } from "@/context/UserActivityStatus";
 import { UserEditableWorkspacesProvider } from "@/context/UserEditableWorkspaces";
 import { DashboardHeader } from "@/components/header/DashboardHeader";
+import { AIChatbot } from "@/components/chatbot/AIChatbot";
+import dynamic from "next/dynamic";
+
+// Import the chatbot with dynamic import to prevent SSR issues
+const ClaudeAIAssistant = dynamic(() => import("@/components/chatbot/AIChatbot").then(mod => mod.AIChatbot), {
+  ssr: false,
+});
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -16,6 +23,8 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               <Sidebar />
               <div className="relative p-4 md:p-6 lg:px-10 flex-grow flex flex-col overflow-y-auto scrollbar-thin scrollbar-thumb-secondary scrollbar-track-background">
                 {children}
+                {/* Claude AI Assistant - shown on all dashboard pages */}
+                <ClaudeAIAssistant />
               </div>
             </div>
           </div>

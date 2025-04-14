@@ -2,8 +2,8 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { getServerSession, NextAuthOptions } from "next-auth";
 import { db } from "./db";
 import { Adapter } from "next-auth/adapters";
-import GoogleProvider from "next-auth/providers/google";
-import GithubProvider from "next-auth/providers/github";
+// import GoogleProvider from "next-auth/providers/google";
+// import GithubProvider from "next-auth/providers/github";
 import AppleProvider from "next-auth/providers/apple";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { generateFromEmail } from "unique-username-generator";
@@ -69,37 +69,8 @@ export const authOptions: NextAuthOptions = {
   },
   adapter: PrismaAdapter(db) as Adapter,
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      async profile(profile) {
-        const username = generateFromEmail(profile.email, 5);
-        return {
-          id: profile.sub,
-          username,
-          name: profile.given_name ? profile.given_name : profile.name,
-          surname: profile.family_name ? profile.family_name : "",
-          email: profile.email,
-          image: profile.picture,
-        };
-      },
-    }),
-    GithubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-      async profile(profile) {
-        const username = generateFromEmail(profile.email, 5);
-        const fullName = profile.name.split(" ");
-        return {
-          id: profile.id,
-          username: profile.login ? profile.login : username,
-          name: fullName.at(0),
-          surname: fullName.at(1),
-          email: profile.email,
-          image: profile.avatar_url,
-        };
-      },
-    }),
+    // GoogleProvider removed
+    // GithubProvider removed
     AppleProvider({
       clientId: process.env.APPLE_CLIENT_ID!,
       clientSecret: process.env.APPLE_CLIENT_SECRET!,

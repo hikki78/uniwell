@@ -1,3 +1,4 @@
+
 'use client';
 
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
@@ -32,9 +33,13 @@ import {
   homePageRolesAndSettingsImgs,
   homePageTasksImgs,
 } from "@/lib/constants";
+import { useRouter } from 'next/navigation';
 
 export const HomePage = () => {
   const targetRef = useRef(null);
+  const featuresRef = useRef<HTMLElement>(null);
+  const router = useRouter();
+  
   const { scrollYProgress } = useScroll({
     target: targetRef,
     offset: ['start start', 'end start'],
@@ -42,6 +47,21 @@ export const HomePage = () => {
 
   const springConfig = { stiffness: 100, damping: 30, restDelta: 0.001 };
   const smoothProgress = useSpring(scrollYProgress, springConfig);
+
+  const scrollToFeatures = () => {
+    featuresRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+  
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+  
+  const navigateToSignUp = () => {
+    router.push('/sign-up');
+  };
 
   return (
     <>
@@ -148,16 +168,10 @@ export const HomePage = () => {
                   <Button
                     size="lg"
                     className="text-lg px-8 h-14 bg-primary/90 backdrop-blur-md hover:bg-primary/80 shadow-lg hover:shadow-primary/25 transition-all duration-300"
+                    onClick={scrollToFeatures}
                   >
-                    Get Started
+                    Learn More
                     <ArrowRight className="ml-2 w-5 h-5" />
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="text-lg px-8 h-14 bg-background/50 backdrop-blur-md border-primary/20 hover:bg-background/60 shadow-lg hover:shadow-primary/20 transition-all duration-300"
-                  >
-                    Try For Free
                   </Button>
                 </motion.div>
 
@@ -299,10 +313,10 @@ export const HomePage = () => {
         
 
         {/* Features Section */}
-        <section className="container mx-auto px-4 py-20">
+        <section id="features" ref={featuresRef} className="container mx-auto px-4 py-20">
           <div className="text-center mb-16 fade-in">
             <h2 className="text-4xl font-bold mb-4">
-              Everything You Need - 100% Free
+              All the productivity features you can imagine in one place
             </h2>
             <p className="text-xl text-muted-foreground">
               All features available to everyone, no premium tier, no hidden costs
@@ -315,6 +329,7 @@ export const HomePage = () => {
                 title: 'Real-time Chat',
                 description:
                   'Connect with peers instantly through our seamless chat interface',
+                targetSection: 'Chat',
                 demo: (
                   <div className="relative h-32 bg-card/50 rounded-lg p-4 overflow-hidden">
                     <motion.div
@@ -349,6 +364,7 @@ export const HomePage = () => {
                 title: 'Pomodoro Timer',
                 description:
                   'Boost productivity with our customizable Pomodoro technique timer',
+                targetSection: 'Pomodoro',
                 demo: (
                   <div className="relative h-32 bg-card/50 rounded-lg p-4 flex items-center justify-center">
                     <motion.div
@@ -377,6 +393,7 @@ export const HomePage = () => {
                 title: 'Mind Maps',
                 description:
                   'Visualize your thoughts and organize ideas effectively',
+                targetSection: 'Mind-Maps',
                 demo: (
                   <div className="relative h-32 bg-card/50 rounded-lg p-4">
                     <motion.div
@@ -446,6 +463,7 @@ export const HomePage = () => {
                 title: 'Smart Calendar',
                 description:
                   'Manage your schedule with our intuitive calendar interface',
+                targetSection: 'Calendar',
                 demo: (
                   <div className="relative h-32 bg-card/50 rounded-lg p-4">
                     <div className="grid grid-cols-7 gap-1">
@@ -471,6 +489,7 @@ export const HomePage = () => {
                 title: 'Tasks & Todo',
                 description:
                   'Stay organized with our powerful task management system',
+                targetSection: 'Tasks',
                 demo: (
                   <div className="relative h-32 bg-card/50 rounded-lg p-4">
                     <motion.div className="space-y-2">
@@ -534,6 +553,7 @@ export const HomePage = () => {
                 title: 'Collaboration',
                 description:
                   'Work together seamlessly with group features and shared workspaces',
+                targetSection: 'Roles',
                 demo: (
                   <div className="relative h-32 bg-card/50 rounded-lg p-4 flex items-center justify-center">
                     <motion.div className="relative">
@@ -560,7 +580,10 @@ export const HomePage = () => {
                 className="slide-up feature-card"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <Card className="p-6 bg-background/40 backdrop-blur-xl border border-purple-300/20 dark:border-purple-600/20 shadow-lg hover:shadow-purple-500/20 transition-all duration-300">
+                <Card 
+                  className={`p-6 bg-background/40 backdrop-blur-xl border border-purple-300/20 dark:border-purple-600/20 shadow-lg hover:shadow-purple-500/20 transition-all duration-300 ${feature.targetSection ? 'cursor-pointer' : ''}`}
+                  onClick={feature.targetSection ? () => scrollToSection(feature.targetSection) : undefined}
+                >
                   <div className="mb-4 text-purple-500 transition-transform duration-300 hover:scale-110">
                     {feature.icon}
                   </div>
@@ -669,6 +692,7 @@ export const HomePage = () => {
               <Button
                 size="lg"
                 className="text-lg px-8 bg-purple-500/90 backdrop-blur-md hover:bg-purple-600/80 shadow-lg hover:shadow-purple-500/25 transition-all duration-300 relative z-10"
+                onClick={navigateToSignUp}
               >
                 Get Started Now
               </Button>
