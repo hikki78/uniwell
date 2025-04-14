@@ -1,4 +1,3 @@
-
 'use client';
 
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
@@ -18,12 +17,15 @@ import {
   Music,
   Trophy,
   Users,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Nav } from './nav/Nav';
 import { Footer } from './footer/Footer';
 import { Section } from './section/Section';
 import { TextSection } from './section/TextSection';
+import { VideoContainer } from './video/VideoContainer';
 import {
   homePageAssignmentFilterAndStarredImgs,
   homePageCalendarImgs,
@@ -35,11 +37,70 @@ import {
 } from "@/lib/constants";
 import { useRouter } from 'next/navigation';
 
+// Define the type for carousel items to match the VideoContainer props
+type ImageCategory = "dashboard" | "mindmap" | "tasks" | "pomodoro" | "chat" | "calendar";
+
 export const HomePage = () => {
   const targetRef = useRef(null);
   const featuresRef = useRef<HTMLElement>(null);
   const router = useRouter();
   
+  const [activeVideoIndex, setActiveVideoIndex] = useState(0);
+  const videoRefs = useRef<HTMLDivElement[]>([]);
+  
+  // Carousel data with typed imageCategory
+  const carouselItems = [
+    {
+      title: "Dashboard",
+      description: "Track your progress and manage your tasks in one centralized location.",
+      bgColor: "from-primary/20 to-chart-2/20",
+      imageCategory: "dashboard" as ImageCategory
+    },
+    {
+      title: "Mind Maps",
+      description: "Visualize your ideas and organize your thoughts effectively.",
+      bgColor: "from-purple-500/20 to-blue-500/20",
+      imageCategory: "mindmap" as ImageCategory
+    },
+    {
+      title: "Task Management",
+      description: "Create, organize, and track your tasks with powerful tools.",
+      bgColor: "from-blue-500/20 to-cyan-500/20",
+      imageCategory: "tasks" as ImageCategory
+    },
+    {
+      title: "Pomodoro Timer",
+      description: "Boost your productivity with timed work sessions.",
+      bgColor: "from-green-500/20 to-emerald-500/20",
+      imageCategory: "pomodoro" as ImageCategory
+    },
+    {
+      title: "Group Chat",
+      description: "Collaborate with your team in real-time through integrated messaging.",
+      bgColor: "from-amber-500/20 to-yellow-500/20",
+      imageCategory: "chat" as ImageCategory
+    },
+    {
+      title: "Calendar",
+      description: "Keep track of deadlines and schedule your tasks efficiently.",
+      bgColor: "from-pink-500/20 to-rose-500/20",
+      imageCategory: "calendar" as ImageCategory
+    }
+  ];
+  
+  const nextItem = () => {
+    setActiveVideoIndex(prev => (prev + 1) % carouselItems.length);
+  };
+  
+  const prevItem = () => {
+    setActiveVideoIndex(prev => (prev - 1 + carouselItems.length) % carouselItems.length);
+  };
+  
+  useEffect(() => {
+    const interval = setInterval(nextItem, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   const { scrollYProgress } = useScroll({
     target: targetRef,
     offset: ['start start', 'end start'],
@@ -203,61 +264,80 @@ export const HomePage = () => {
                 </motion.div>
               </motion.div>
 
-              {/* Right Column - 3D Dashboard */}
+              {/* Right Column - Replace with Video Carousel */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="relative perspective-1000"
               >
-                <motion.div
-                  animate={{
-                    rotateX: [0, 2, 0],
-                    rotateY: [0, 5, 0],
-                  }}
-                  transition={{
-                    duration: 6,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
-                  style={{
-                    transformStyle: 'preserve-3d',
-                  }}
-                  className="relative z-20"
-                >
-                  <div className="bg-background/40 backdrop-blur-xl border border-primary/20 rounded-2xl p-6 shadow-2xl hover:shadow-primary/20 transition-all duration-300">
-                    {/* Dashboard Content */}
-                    <div className="flex items-center justify-between mb-8">
-                      <div className="space-y-1">
-                        <h3 className="text-lg font-semibold">
-                          Productivity Score
-                        </h3>
-                        <p className="text-muted-foreground">Last 30 days</p>
-                      </div>
-                      <Activity className="w-6 h-6 text-primary" />
+                <div className="relative z-20 rounded-2xl overflow-hidden shadow-2xl">
+                  {/* Video Carousel */}
+                  <div className="relative h-[400px] w-full overflow-hidden rounded-2xl">
+                    {carouselItems.map((item, index) => (
+                      <motion.div
+                        key={index}
+                        ref={el => {
+                          if (el) videoRefs.current[index] = el;
+                        }}
+                        initial={{ opacity: 0, x: '100%' }}
+                        animate={{ 
+                          opacity: activeVideoIndex === index ? 1 : 0,
+                          x: activeVideoIndex === index ? 0 : activeVideoIndex > index ? '-100%' : '100%' 
+                        }}
+                        transition={{ duration: 0.5 }}
+                        className={`absolute inset-0 ${activeVideoIndex === index ? 'z-10' : 'z-0'}`}
+                      >
+                        <div className={`absolute inset-0 bg-gradient-to-br ${item.bgColor} opacity-30`}></div>
+                        <VideoContainer 
+                          className="h-full w-full relative z-10" 
+                          imageCategory={item.imageCategory}
+                        />
+                        
+                        <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black/50 to-transparent z-20">
+                          <h3 className="text-2xl font-bold text-white mb-2">{item.title}</h3>
+                          <p className="text-white/80">{item.description}</p>
+                        </div>
+                      </motion.div>
+                    ))}
+                    
+                    {/* Carousel Controls */}
+                    <div className="absolute top-1/2 left-4 transform -translate-y-1/2 z-30">
+                      <button 
+                        onClick={prevItem}
+                        className="bg-background/30 backdrop-blur-md text-white p-2 rounded-full hover:bg-background/50 transition-all"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
                     </div>
-                    <div className="space-y-8">
-                      <div className="h-[200px] flex items-end gap-2">
-                        {[40, 70, 45, 90, 65, 85, 95].map((height, i) => (
-                          <motion.div
-                            key={i}
-                            className="flex-1 bg-primary/10 backdrop-blur-md rounded-t-lg relative group"
-                            style={{ height: `${height}%` }}
-                            whileHover={{ scale: 1.1 }}
-                          >
-                            <motion.div
-                              className="absolute bottom-0 left-0 w-full bg-primary/60 backdrop-blur-md rounded-t-lg transition-all duration-300"
-                              style={{ height: `${height}%` }}
-                              whileHover={{ height: '100%' }}
-                            />
-                          </motion.div>
-                        ))}
-                      </div>
+                    
+                    <div className="absolute top-1/2 right-4 transform -translate-y-1/2 z-30">
+                      <button 
+                        onClick={nextItem}
+                        className="bg-background/30 backdrop-blur-md text-white p-2 rounded-full hover:bg-background/50 transition-all"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </div>
+                    
+                    {/* Carousel Indicators */}
+                    <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-2 z-30">
+                      {carouselItems.map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setActiveVideoIndex(index)}
+                          className={`w-2 h-2 rounded-full transition-all ${
+                            activeVideoIndex === index 
+                              ? 'bg-white w-4' 
+                              : 'bg-white/50'
+                          }`}
+                        />
+                      ))}
                     </div>
                   </div>
-                </motion.div>
+                </div>
 
-                {/* Floating Stats Cards */}
+                {/* Keep the floating stats cards */}
                 <motion.div
                   animate={{
                     y: [0, 20, 0],
@@ -308,7 +388,6 @@ export const HomePage = () => {
               </motion.div>
             </div>
           </div>
-
         </section>
         
 
