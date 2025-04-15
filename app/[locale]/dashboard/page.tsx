@@ -274,7 +274,7 @@ export default function WellbeingDashboard() {
       }, 1000);
     }
   }, [dailyMoodScore, getMoodInsight]);
-  
+
   useEffect(() => {
     const hour = new Date().getHours();
     if (hour >= 5 && hour < 12) setTimeOfDay('morning');
@@ -564,7 +564,7 @@ export default function WellbeingDashboard() {
       setShowResultsModal(true);
       
       toast.success("Mood tracked successfully!");
-    } catch (error) {
+        } catch (error) {
       console.error('Error saving mood data:', error);
       toast.error("Failed to save mood data. Please try again.");
     }
@@ -902,16 +902,16 @@ export default function WellbeingDashboard() {
             {/* Mood Score Section */}
             <Card className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
                   <Heart className="h-6 w-6 text-pink-500" />
                   <h3 className="text-xl font-semibold">Mood Score</h3>
-                </div>
+                  </div>
                 {hasTrackedToday ? (
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">Already tracked today</span>
                   </div>
                 ) : (
-                  <Button 
+                  <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setShowMoodTracker(true)}
@@ -920,18 +920,18 @@ export default function WellbeingDashboard() {
                     Track Today's Mood
                   </Button>
                 )}
-              </div>
-              
+                </div>
+
               {dailyMoodScore !== null && (
                 <div className="bg-secondary/30 rounded-lg p-4 mb-4">
-                  <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between">
                     <span className="text-lg font-medium">Today's Mood:</span>
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
                       <span className="text-2xl font-bold">{Math.round((dailyMoodScore / 50) * 100)}%</span>
                       <span className="text-md text-muted-foreground">
                         {getMoodSalutation(dailyMoodScore)}
                       </span>
-                    </div>
+                  </div>
                   </div>
                   <Progress 
                     value={(dailyMoodScore / 50) * 100} 
@@ -985,10 +985,10 @@ export default function WellbeingDashboard() {
                 ) : (
                   <div className="text-center text-muted-foreground">
                     <p>Track your mood to see your score</p>
-                  </div>
+                </div>
                 )}
               </div>
-            </Card>
+              </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {userId && (
@@ -1012,17 +1012,17 @@ export default function WellbeingDashboard() {
                   initialLimit={settings.screenTimeLimit}
                 />
               )}
-            </div>
+                </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Audio Corner */}
               <div className="flex flex-col">
                 <Card className="p-6 flex-grow bg-gradient-to-r from-indigo-50/50 to-purple-50/50 dark:from-indigo-950/30 dark:to-purple-950/30">
                   <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
                       <Music2 className="h-6 w-6 text-indigo-500" />
                       <h3 className="text-xl font-semibold">Audio Corner</h3>
-                    </div>
+                </div>
                     <Button 
                       variant="ghost" 
                       size="sm"
@@ -1030,14 +1030,14 @@ export default function WellbeingDashboard() {
                     >
                       <Volume2 className="h-4 w-4" />
                     </Button>
-                  </div>
+                </div>
 
                   <div className="rounded-lg overflow-hidden border shadow-sm">
                     {/* Integrated YouTube Player */}
                     {/* For YouTube API, name your environment variable: NEXT_PUBLIC_YOUTUBE_API_KEY */}
                     <YouTubePlayer inMusicSection={true} />
-                  </div>
-                  
+            </div>
+
                   <div className="mt-4 text-xs text-muted-foreground text-center">
                     Powered by YouTube - Relax with your favorite music and podcasts
                   </div>
@@ -1138,8 +1138,8 @@ export default function WellbeingDashboard() {
                         <div className="text-xs text-muted-foreground">
                           {Math.min(100, (parseFloat(activitiesState.screenTime.value) / parseFloat(activitiesState.screenTime.target) * 100) || 0).toFixed(0)}%
                         </div>
-                      </div>
-                      
+                  </div>
+                  
                       {/* Meditation */}
                       <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-secondary/50">
                         <div className="flex items-center gap-3">
@@ -1188,7 +1188,7 @@ export default function WellbeingDashboard() {
                           >
                             ?
                           </Button>
-                        </div>
+                      </div>
                         
                         {customActivities.map((activity) => (
                           <div
@@ -1213,9 +1213,9 @@ export default function WellbeingDashboard() {
                                 </div>
                               </div>
                             </div>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
                               className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1223,7 +1223,7 @@ export default function WellbeingDashboard() {
                               }}
                             >
                               ×
-                            </Button>
+                              </Button>
                           </div>
                         ))}
                       </div>
@@ -1259,7 +1259,7 @@ export default function WellbeingDashboard() {
                       {option.label}
                     </Button>
                   ))}
-                </div>
+                    </div>
               ) : (
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm text-muted-foreground">
@@ -1290,8 +1290,8 @@ export default function WellbeingDashboard() {
                   </Button>
                 </div>
               )}
-            </div>
-            
+                  </div>
+
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>Question {currentQuestionIndex + 1} of {moodQuestions.length}</span>
               <button
@@ -1305,8 +1305,8 @@ export default function WellbeingDashboard() {
               >
                 Cancel
               </button>
-            </div>
           </div>
+        </div>
         </div>
       )}
       
