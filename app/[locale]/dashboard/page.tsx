@@ -1050,7 +1050,7 @@ export default function WellbeingDashboard() {
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-2">
                       <Target className="h-6 w-6 text-emerald-500" />
-                      <h3 className="text-xl font-semibold">Activities Corner</h3>
+                      <h3 className="text-xl font-semibold">Activity Corner</h3>
                     </div>
                     {userId && (
                       <div className="flex gap-2">
@@ -1076,7 +1076,7 @@ export default function WellbeingDashboard() {
                             <label className="text-xs text-muted-foreground mb-1 block">Activity Name</label>
                             <input 
                               type="text"
-                              placeholder="e.g., Running"
+                              placeholder="the stuff you actually want to do 😜"
                               value={newActivity.label}
                               onChange={(e) => setNewActivity({...newActivity, label: e.target.value})}
                               className="w-full h-8 px-2 text-sm rounded-md border"
@@ -1087,7 +1087,7 @@ export default function WellbeingDashboard() {
                               <label className="text-xs text-muted-foreground mb-1 block">Target</label>
                               <input 
                                 type="text"
-                                placeholder="e.g., 30"
+                                placeholder="1"
                                 value={newActivity.target}
                                 onChange={(e) => setNewActivity({...newActivity, target: e.target.value})}
                                 className="w-full h-8 px-2 text-sm rounded-md border"
@@ -1179,7 +1179,7 @@ export default function WellbeingDashboard() {
                     {customActivities.length > 0 && (
                       <div className="mt-6 pt-4 border-t">
                         <div className="flex justify-between">
-                          <h4 className="text-sm font-medium mb-2">Custom Activities</h4>
+                          <h4 className="text-sm font-medium mb-2">Extra Curricular</h4>
                           <Button 
                             variant="ghost" 
                             size="sm"
