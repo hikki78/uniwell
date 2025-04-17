@@ -83,6 +83,14 @@ export function AIChatbot() {
       
       // Add AI response to chat
       setMessages(prev => [...prev, { role: 'assistant', content: response.data.reply }]);
+      
+      // If using fallback mode, notify the user
+      if (response.data.usedFallback) {
+        toast.info('Using fallback mode - AI service is currently unavailable', {
+          duration: 5000,
+          position: 'bottom-center'
+        });
+      }
     } catch (error: any) {
       console.error('Error getting AI response:', error);
       
