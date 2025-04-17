@@ -110,19 +110,15 @@ const moodQuestions: MoodQuestion[] = [
   },
   {
     id: 2,
-    question: "How much will you rate the last music you played?",
+    question: "How well did you sleep last night?",
     type: 'rating',
     max: 10
   },
   {
     id: 3,
-    question: "Have you completed all the tasks today?",
-    options: [
-      { label: "Yes", value: 10 },
-      { label: "Mostly done", value: 5.5 },
-      { label: "No", value: 0 }
-    ],
-    type: 'choice'
+    question: "How socially connected do you feel today?",
+    type: 'rating',
+    max: 10
   },
   {
     id: 4,
@@ -132,7 +128,7 @@ const moodQuestions: MoodQuestion[] = [
   },
   {
     id: 5,
-    question: "How much will you rate your health today?",
+    question: "Rate your wellbeing today",
     type: 'rating',
     max: 10
   }
@@ -727,12 +723,14 @@ export default function WellbeingDashboard() {
       const screenTimeTarget = localStorage.getItem(`screenTimeLimit-${userId}`);
       const screenTimeData = localStorage.getItem(`screenTimeData-${userId}`);
       const meditationDuration = localStorage.getItem(`meditationDuration-${userId}`);
+      const meditationProgressData = localStorage.getItem(`meditationProgress-${userId}`);
       const waterGoalData = localStorage.getItem(`waterGoal-${userId}`);
       const waterReminderData = localStorage.getItem(`waterReminder-${userId}`);
       
       let screenTimeUsed = "0";
       let screenTimeLimit = "0";
       let meditationTarget = "0";
+      let meditationValue = "0";
       let waterAmount = "0";
       let waterGoal = "0";
       
@@ -749,6 +747,21 @@ export default function WellbeingDashboard() {
       
       if (meditationDuration) {
         meditationTarget = meditationDuration;
+      }
+      
+      // Check for meditation progress
+      if (meditationProgressData) {
+        try {
+          const data = JSON.parse(meditationProgressData);
+          const todayStr = new Date().toDateString();
+          
+          // Only use today's meditation data
+          if (data.date === todayStr && data.value) {
+            meditationValue = data.value;
+          }
+        } catch (err) {
+          console.error("Error parsing meditation progress data:", err);
+        }
       }
       
       if (waterGoalData) {
@@ -771,7 +784,7 @@ export default function WellbeingDashboard() {
         },
         meditation: { 
           label: "Meditation", 
-          value: "0", // This will update when used
+          value: meditationValue,
           target: meditationTarget, 
           unit: "minutes" 
         },
@@ -850,7 +863,32 @@ export default function WellbeingDashboard() {
   // Add useEffect to set isClient flag when component mounts
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    
+    // Listen for meditation completion event
+    const handleMeditationCompleted = (event: CustomEvent) => {
+      const { userId: eventUserId, value, target } = event.detail;
+      
+      // Only update if this is for the current user
+      if (eventUserId === userId) {
+        setActivitiesState(prev => ({
+          ...prev,
+          meditation: {
+            ...prev.meditation,
+            value,
+            target
+          }
+        }));
+      }
+    };
+    
+    // Add event listener
+    window.addEventListener('meditation-completed', handleMeditationCompleted as EventListener);
+    
+    // Clean up
+    return () => {
+      window.removeEventListener('meditation-completed', handleMeditationCompleted as EventListener);
+    };
+  }, [userId]);
 
   return (
     <>

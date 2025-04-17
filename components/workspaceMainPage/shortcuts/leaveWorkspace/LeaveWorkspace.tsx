@@ -48,7 +48,7 @@ export const LeaveWorkspace = ({ workspace: { id, name } }: Props) => {
     },
     onSuccess: async () => {
       toast({
-        title: m("SUCCES.LEAVE_FROM_WORKSPACE"),
+        title: "Left Workspace Successfully",
       });
 
       router.push("/dashboard");

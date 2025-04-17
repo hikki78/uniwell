@@ -23,7 +23,7 @@ export const useNewMindMap = (workspaceId: string) => {
     },
     onSuccess: (data: MindMap) => {
       toast({
-        title: m("SUCCES.MIND_MAP_ADDED"),
+        title: "Mind Map Added",
       });
       router.push(
         `/dashboard/workspace/${workspaceId}/mind-maps/mind-map/${data.id}/edit`

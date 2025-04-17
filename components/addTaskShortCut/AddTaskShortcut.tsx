@@ -127,7 +127,7 @@ export const AddTaskShortcut = ({ userId }: Props) => {
       await queryclient.refetchQueries(["getCalendarItems", userId]);
 
       toast({
-        title: m("SUCCES.TASK_ADDED"),
+        title: "Task Added",
       });
 
       setNewTaskLink(

@@ -1,5 +1,4 @@
 import { AddTaskShortcut } from "@/components/addTaskShortCut/AddTaskShortcut";
-import { DashboardHeader } from "@/components/header/DashboardHeader";
 import { InviteUsers } from "@/components/inviteUsers/InviteUsers";
 import { MindMap } from "@/components/mindMaps/MindMap";
 import { WorkspaceTab } from "@/components/settings/workspace/WorkspaceTab";
@@ -25,26 +24,7 @@ const Workspace = async ({ params: { workspace_id } }: Params) => {
 
   return (
     <>
-      <DashboardHeader
-      // @ts-ignore
-        className="mb-2 sm:mb-0"
-        addManualRoutes={[
-          {
-            name: "DASHBOARD",
-            href: "/dashboard",
-            useTranslate: true,
-          },
-          {
-            name: "settings",
-            href: "/dashboard/settings",
-          },
-          {
-            name: workspace.name,
-            href: "/",
-          },
-        ]}
-      />
-      <div className="flex items-center container mx-auto gap-2">
+      <div className="flex items-center container mx-auto gap-2 justify-start">
         {(user?.userRole === "ADMIN" || user?.userRole === "OWNER") && (
           <InviteUsers workspace={workspace} />
         )}

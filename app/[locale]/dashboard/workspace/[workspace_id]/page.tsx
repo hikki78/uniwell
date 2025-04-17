@@ -55,18 +55,6 @@ const Workspace = async ({ params: { workspace_id } }: Params) => {
           </div>
         </div>
         
-        <div className="p-6 bg-gradient-to-br from-purple-50/90 to-indigo-50/90 dark:from-purple-950/40 dark:to-indigo-950/40 border border-purple-200/50 dark:border-purple-800/30 shadow-md hover:shadow-lg transition-all duration-200 rounded-xl overflow-hidden relative mb-6">
-          <div className="relative flex items-center gap-4">
-            <div className="bg-white/30 dark:bg-white/10 rounded-full p-3 backdrop-blur-sm">
-              <Briefcase className="h-8 w-8 text-purple-600 dark:text-purple-300" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-purple-800 dark:text-purple-200">{workspace.name}</h2>
-              <p className="text-purple-600/80 dark:text-purple-300/80">Collaborate and organize your tasks</p>
-            </div>
-          </div>
-        </div>
-        
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Main Content - Left Side (8/12) */}
           <div className="lg:col-span-8">

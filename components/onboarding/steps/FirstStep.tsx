@@ -15,18 +15,13 @@ import {
 } from "@/schema/additionalUserInfoFirstPart";
 import { ActionType } from "@/types/onBoardingContext";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, User } from "lucide-react";
-import React, { useEffect } from "react";
+import { ArrowRight } from "lucide-react";
+import React from "react";
 import { useForm } from "react-hook-form";
-import { AddUserImage } from "../common/AddUserImage";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 
-interface Props {
-  profileImage?: string | null;
-}
-
-export const FirstStep = ({ profileImage }: Props) => {
+export const FirstStep = () => {
   const session = useSession();
   const { currentStep, name, surname, dispatch } = useOnboardingForm();
   const form = useForm<AdditionalUserInfoFirstPart>({
@@ -38,15 +33,7 @@ export const FirstStep = ({ profileImage }: Props) => {
   });
   const t = useTranslations("ONBOARDING_FORM");
 
-  useEffect(() => {
-    dispatch({
-      type: ActionType.PROFILEIMAGE,
-      payload: profileImage as string | null | undefined,
-    });
-  }, [profileImage, dispatch]);
-
   const onSubmit = (data: AdditionalUserInfoFirstPart) => {
-    
     dispatch({ type: ActionType.NAME, payload: data.name! });
     dispatch({ type: ActionType.SURNAME, payload: data.surname! });
     dispatch({ type: ActionType.CHANGE_SITE, payload: currentStep + 1 });
@@ -59,11 +46,6 @@ export const FirstStep = ({ profileImage }: Props) => {
         <span>{t("FIRST_STEP.TITLE.SECOND")}</span>
       </h2>
       <div className="max-w-md w-full space-y-8">
-        <div className="w-full flex flex-col justify-center items-center gap-2">
-          <p>{t("FIRST_STEP.PHOTO")}</p>
-          <AddUserImage profileImage={profileImage} />
-        </div>
-
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="space-y-1.8">

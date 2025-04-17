@@ -66,7 +66,7 @@ export const MindMapActionButtons = ({
         disabled={isPending}
       >
         <Save className="h-4 w-4 mr-2" />
-        {isSaved ? t("REMOVE_FROM_FAV") : t("ADD_TO_FAV")}
+        {isSaved ? t("REMOVE_FROM_FAVORITES") : t("ADD_TO_FAVORITES")}
       </Button>
       
       {canEdit && (

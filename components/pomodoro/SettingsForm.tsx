@@ -80,13 +80,13 @@ export const SettingsForm = ({
       const error = err?.response?.data ? err.response.data : "ERRORS_DEFAULT";
 
       toast({
-        title: m(error),
+        title: "Pomodoro Settings Updated",
         variant: "destructive",
       });
     },
     onSuccess: async () => {
       toast({
-        title: m("SUCCES.UPDATE_POMODORO_SETTINGS"),
+        title: "Pomodoro Settings Updated",
       });
       router.refresh();
     },
@@ -109,13 +109,13 @@ export const SettingsForm = ({
       const error = err?.response?.data ? err.response.data : "ERRORS_DEFAULT";
 
       toast({
-        title: m(error),
+        title: "Pomodoro Settings Reset",
         variant: "destructive",
       });
     },
     onSuccess: async () => {
       toast({
-        title: m("SUCCES.RESET_POMODORO_SETTINGS"),
+        title: "Pomodoro Settings Reset",
       });
 
       form.reset({

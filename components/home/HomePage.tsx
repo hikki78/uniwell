@@ -502,7 +502,7 @@ export const HomePage = () => {
               },
               {
                 icon: <Trophy className="w-10 h-10" />,
-                title: 'University Leaderboard',
+                title: 'Workspace leaderboard',
                 description:
                   'Compete with fellow students and track your progress',
                 demo: (

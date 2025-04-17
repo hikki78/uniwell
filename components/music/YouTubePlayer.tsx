@@ -240,9 +240,8 @@ export default function YouTubePlayer({ inMusicSection = false }: YouTubePlayerP
           setVolume(parsedState.volume);
         }
         
-        if (typeof parsedState.isPlaying === 'boolean') {
-          setIsPlaying(parsedState.isPlaying);
-        }
+        // Don't restore isPlaying state, always start paused
+        setIsPlaying(false);
       }
     } catch (error) {
       console.error('Error loading player state:', error);
@@ -418,7 +417,7 @@ export default function YouTubePlayer({ inMusicSection = false }: YouTubePlayerP
     height: '0',
     width: '0',
     playerVars: {
-      autoplay: 1,
+      autoplay: 0,
       controls: 0,
       disablekb: 1,
       fs: 0,

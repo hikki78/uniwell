@@ -131,12 +131,12 @@ export const MindMapCardPreviewOptions = ({
               {isSaved ? (
                 <>
                   <StarOff size={16} className="mr-2" />
-                  {t("REMOVE_FROM_FAV")}
+                  {"Remove from Favorites"}
                 </>
               ) : (
                 <>
                   <Star size={16} className="mr-2" />
-                  {t("ADD_TO_FAV")}
+                  {"Add to Favorites"}
                 </>
               )}
             </DropdownMenuItem>
@@ -147,14 +147,14 @@ export const MindMapCardPreviewOptions = ({
                     href={`/dashboard/workspace/${workspaceId}/mind-maps/mind-map/${mindMapId}/edit`}
                   >
                     <Pencil size={16} className="mr-2"></Pencil>
-                    {t("EDIT")}
+                    {"Edit"}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DialogTrigger className="w-full">
                   <DropdownMenuItem className="cursor-pointer">
                     <Trash size={16} className="mr-2" />
-                    {t("DELETE")}
+                    {"Delete"}
                   </DropdownMenuItem>
                 </DialogTrigger>
               </>
