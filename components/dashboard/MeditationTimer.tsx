@@ -9,16 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Heart, Pause, Play, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 
-// List of available alarm sounds
-const ALARM_SOUNDS = [
-  "/music/analog.mp3",
-  "/music/bell.mp3",
-  "/music/bird.mp3",
-  "/music/churchBell.mp3",
-  "/music/digital.mp3",
-  "/music/fancy.mp3"
-];
-
 interface MeditationTimerProps {
   userId: string;
   onComplete?: () => void;
@@ -32,42 +22,13 @@ export function MeditationTimer({ userId, onComplete }: MeditationTimerProps) {
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(100);
   
-  // Reference for the timer interval and audio
+  // Reference for the timer interval
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   
   // Set isClient to true on mount
   useEffect(() => {
     setIsClient(true);
-    
-    // Initialize audio element
-    if (typeof window !== 'undefined') {
-      audioRef.current = new Audio();
-    }
-    
-    return () => {
-      // Clean up audio on unmount
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
   }, []);
-
-  // Play a random alarm sound
-  const playRandomAlarm = () => {
-    if (!audioRef.current) return;
-    
-    // Select a random alarm sound
-    const randomIndex = Math.floor(Math.random() * ALARM_SOUNDS.length);
-    const randomSound = ALARM_SOUNDS[randomIndex];
-    
-    // Set the source and play
-    audioRef.current.src = randomSound;
-    audioRef.current.volume = 0.7;
-    audioRef.current.play()
-      .catch(err => console.error("Error playing alarm sound:", err));
-  };
   
   // Load settings
   useEffect(() => {
@@ -84,58 +45,6 @@ export function MeditationTimer({ userId, onComplete }: MeditationTimerProps) {
       }
     }
   }, [userId]);
-
-  // Save meditation progress to localStorage
-  const saveMeditationProgress = () => {
-    if (typeof window !== 'undefined') {
-      try {
-        // Get current meditation target from settings or use a default
-        const meditationTarget = localStorage.getItem(`meditationGoal-${userId}`) || "30";
-        const targetMinutes = parseInt(meditationTarget);
-        
-        // Set progress to 100% (equal to target) when completed
-        const newValue = targetMinutes.toString();
-        
-        // Save updated progress with today's date
-        localStorage.setItem(`meditationProgress-${userId}`, JSON.stringify({
-          value: newValue,
-          date: new Date().toDateString()
-        }));
-        
-        // Update activities state in dashboard
-        const activitiesStateData = localStorage.getItem(`activitiesState-${userId}`);
-        if (activitiesStateData) {
-          const activitiesState = JSON.parse(activitiesStateData);
-          activitiesState.meditation.value = newValue;
-          localStorage.setItem(`activitiesState-${userId}`, JSON.stringify(activitiesState));
-        } else {
-          // Create new activities state if it doesn't exist
-          localStorage.setItem(`activitiesState-${userId}`, JSON.stringify({
-            meditation: { 
-              label: "Meditation", 
-              value: newValue, 
-              target: meditationTarget, 
-              unit: "minutes" 
-            }
-          }));
-        }
-        
-        // Dispatch a custom event to notify the dashboard
-        window.dispatchEvent(new CustomEvent('meditation-completed', {
-          detail: {
-            userId,
-            value: newValue,
-            target: meditationTarget
-          }
-        }));
-        
-        // Progress is now 100%
-        toast.success("Meditation completed: 100%");
-      } catch (error) {
-        console.error("Error saving meditation progress:", error);
-      }
-    }
-  };
 
   // Timer logic
   useEffect(() => {
@@ -154,12 +63,6 @@ export function MeditationTimer({ userId, onComplete }: MeditationTimerProps) {
           clearInterval(intervalRef.current as NodeJS.Timeout);
           setIsRunning(false);
           
-          // Play random alarm sound
-          playRandomAlarm();
-          
-          // Save meditation progress
-          saveMeditationProgress();
-          
           toast.success("Meditation session completed!");
           
           if (onComplete) {
@@ -177,7 +80,7 @@ export function MeditationTimer({ userId, onComplete }: MeditationTimerProps) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isRunning, onComplete, duration, userId]);
+  }, [isRunning, onComplete]);
 
   // Calculate progress
   useEffect(() => {

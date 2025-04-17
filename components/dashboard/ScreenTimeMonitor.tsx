@@ -279,6 +279,7 @@ export function ScreenTimeMonitor({ userId, onSettingsChange, initialLimit = 120
       <Progress 
         value={progressPercent} 
         className="h-2"
+        // @ts-ignore
         indicatorClassName={getProgressColor()}
       />
       

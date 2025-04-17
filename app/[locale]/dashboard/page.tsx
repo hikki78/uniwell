@@ -723,14 +723,12 @@ export default function WellbeingDashboard() {
       const screenTimeTarget = localStorage.getItem(`screenTimeLimit-${userId}`);
       const screenTimeData = localStorage.getItem(`screenTimeData-${userId}`);
       const meditationDuration = localStorage.getItem(`meditationDuration-${userId}`);
-      const meditationProgressData = localStorage.getItem(`meditationProgress-${userId}`);
       const waterGoalData = localStorage.getItem(`waterGoal-${userId}`);
       const waterReminderData = localStorage.getItem(`waterReminder-${userId}`);
       
       let screenTimeUsed = "0";
       let screenTimeLimit = "0";
       let meditationTarget = "0";
-      let meditationValue = "0";
       let waterAmount = "0";
       let waterGoal = "0";
       
@@ -747,21 +745,6 @@ export default function WellbeingDashboard() {
       
       if (meditationDuration) {
         meditationTarget = meditationDuration;
-      }
-      
-      // Check for meditation progress
-      if (meditationProgressData) {
-        try {
-          const data = JSON.parse(meditationProgressData);
-          const todayStr = new Date().toDateString();
-          
-          // Only use today's meditation data
-          if (data.date === todayStr && data.value) {
-            meditationValue = data.value;
-          }
-        } catch (err) {
-          console.error("Error parsing meditation progress data:", err);
-        }
       }
       
       if (waterGoalData) {
@@ -784,7 +767,7 @@ export default function WellbeingDashboard() {
         },
         meditation: { 
           label: "Meditation", 
-          value: meditationValue,
+          value: "0", // This will update when used
           target: meditationTarget, 
           unit: "minutes" 
         },
@@ -863,32 +846,7 @@ export default function WellbeingDashboard() {
   // Add useEffect to set isClient flag when component mounts
   useEffect(() => {
     setIsClient(true);
-    
-    // Listen for meditation completion event
-    const handleMeditationCompleted = (event: CustomEvent) => {
-      const { userId: eventUserId, value, target } = event.detail;
-      
-      // Only update if this is for the current user
-      if (eventUserId === userId) {
-        setActivitiesState(prev => ({
-          ...prev,
-          meditation: {
-            ...prev.meditation,
-            value,
-            target
-          }
-        }));
-      }
-    };
-    
-    // Add event listener
-    window.addEventListener('meditation-completed', handleMeditationCompleted as EventListener);
-    
-    // Clean up
-    return () => {
-      window.removeEventListener('meditation-completed', handleMeditationCompleted as EventListener);
-    };
-  }, [userId]);
+  }, []);
 
   return (
     <>

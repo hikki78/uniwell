@@ -8,7 +8,11 @@ import { FormStepsInfo } from "./FormStepsInfo";
 import { AppTitle } from "../ui/app-title";
 import { Finish } from "./steps/Finish";
 
-export const AdditionalInfoSection = () => {
+interface Props {
+  profileImage?: string | null;
+}
+
+export const AdditionalInfoSection = ({ profileImage }: Props) => {
   const { currentStep } = useOnboardingForm();
 
   return (
@@ -16,7 +20,7 @@ export const AdditionalInfoSection = () => {
       <div className="mt-16 mb-8 w-full flex flex-col items-center">
         <AppTitle size={50} />
 
-        {currentStep === 1 && <FirstStep />}
+        {currentStep === 1 && <FirstStep profileImage={profileImage} />}
         {currentStep === 2 && <SecondStep />}
         {currentStep === 3 && <ThirdStep />}
         {currentStep === 4 && <Finish />}
