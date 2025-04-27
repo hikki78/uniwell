@@ -15,11 +15,19 @@ import {
 import { notFound } from "next/navigation";
 import { ACTIVITY_PER_PAGE } from "./constants";
 
-export const domain = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
+export function getApiBaseUrl() {
+  if (typeof window === "undefined") {
+    // On the server
+    return process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
+  }
+  // On the client
+  return "";
+}
+
 
 export const getWorkspace = async (workspace_id: string, userId: string) => {
   const res = await fetch(
-    `/api/workspace/get/workspace_details/${workspace_id}?userId=${userId}`,
+    `${getApiBaseUrl()}/api/workspace/get/workspace_details/${workspace_id}?userId=${userId}`,
     {
       method: "GET",
       cache: "no-store",
@@ -35,7 +43,7 @@ export const getWorkspace = async (workspace_id: string, userId: string) => {
 
 export const getWorkspaces = async (userId: string) => {
   const res = await fetch(
-    `/api/workspace/get/user_workspaces?userId=${userId}`,
+    `${getApiBaseUrl()}/api/workspace/get/user_workspaces?userId=${userId}`,
     {
       method: "GET",
       cache: "no-store",
@@ -51,7 +59,7 @@ export const getWorkspaces = async (userId: string) => {
 
 export const getUserAdminWorkspaces = async (userId: string) => {
   const res = await fetch(
-    `/api/workspace/get/user_admin_workspaces?userId=${userId}`,
+    `${getApiBaseUrl()}/api/workspace/get/user_admin_workspaces?userId=${userId}`,
     {
       method: "GET",
       cache: "no-store",
@@ -70,7 +78,7 @@ export const getWorkspaceSettings = async (
   userId: string
 ) => {
   const res = await fetch(
-    `/api/workspace/get/settings/${workspace_id}?userId=${userId}`,
+    `${getApiBaseUrl()}/api/workspace/get/settings/${workspace_id}?userId=${userId}`,
     {
       method: "GET",
       cache: "no-store",
@@ -89,7 +97,7 @@ export const getWorkspaceWithChatId = async (
   userId: string
 ) => {
   const res = await fetch(
-    `/api/workspace/get/workspace_with_chat/${workspace_id}?userId=${userId}`,
+    `${getApiBaseUrl()}/api/workspace/get/workspace_with_chat/${workspace_id}?userId=${userId}`,
     {
       method: "GET",
       cache: "no-store",
@@ -105,7 +113,7 @@ export const getWorkspaceWithChatId = async (
 
 export const getInitialMessages = async (userId: string, chatId: string) => {
   const res = await fetch(
-    `/api/conversation/get/initial_messages?userId=${userId}&chatId=${chatId}`,
+    `${getApiBaseUrl()}/api/conversation/get/initial_messages?userId=${userId}&chatId=${chatId}`,
     {
       method: "GET",
       cache: "no-store",
@@ -124,7 +132,7 @@ export const getUserWorkspaceRole = async (
   userId: string
 ) => {
   const res = await fetch(
-    `/api/workspace/get/user_role?workspaceId=${workspace_id}&userId=${userId}`,
+    `${getApiBaseUrl()}/api/workspace/get/user_role?workspaceId=${workspace_id}&userId=${userId}`,
     {
       method: "GET",
       cache: "no-store",
@@ -140,7 +148,7 @@ export const getUserWorkspaceRole = async (
 
 export const getTask = async (task_id: string, userId: string) => {
   const res = await fetch(
-    `/api/task/get/details/${task_id}?userId=${userId}`,
+    `${getApiBaseUrl()}/api/task/get/details/${task_id}?userId=${userId}`,
     {
       method: "GET",
       cache: "no-store",
@@ -156,7 +164,7 @@ export const getTask = async (task_id: string, userId: string) => {
 
 export const getMindMap = async (mind_map_id: string, userId: string) => {
   const res = await fetch(
-    `/api/mind_maps/get/details/${mind_map_id}?userId=${userId}`,
+    `${getApiBaseUrl()}/api/mind_maps/get/details/${mind_map_id}?userId=${userId}`,
     {
       method: "GET",
       cache: "no-store",
@@ -172,7 +180,7 @@ export const getMindMap = async (mind_map_id: string, userId: string) => {
 
 export const getUserPomodoroSettings = async (userId: string) => {
   const res = await fetch(
-    `/api/pomodoro/get_settings?userId=${userId}`,
+    `${getApiBaseUrl()}/api/pomodoro/get_settings?userId=${userId}`,
     {
       method: "GET",
       cache: "no-store",
@@ -188,7 +196,7 @@ export const getUserPomodoroSettings = async (userId: string) => {
 
 export const getInitialHomeRecentActivity = async (userId: string) => {
   const res = await fetch(
-    `/api/home-page/get?userId=${userId}&page=${1}&take=${ACTIVITY_PER_PAGE}`,
+    `${getApiBaseUrl()}/api/home-page/get?userId=${userId}&page=${1}&take=${ACTIVITY_PER_PAGE}`,
     {
       method: "GET",
       cache: "no-store",
