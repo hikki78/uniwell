@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { LoadingState } from "@/components/ui/loadingState";
 import { useToast } from "@/hooks/use-toast";
-import { domain } from "@/lib/api";
+import { getApiBaseUrl } from "@/lib/api";
 import { useMessage } from "@/store/conversation/messages";
 import { ExtendedMessage } from "@/types/extended";
 import axios from "axios";
@@ -30,7 +30,7 @@ export const LoadMoreMessages = ({ chatId, sessionUserId }: Props) => {
     setIsLoading(true);
     try {
       const { data } = await axios.get<ExtendedMessage[]>(
-        `${domain}/api/conversation/get/initial_messages?userId=${sessionUserId}&chatId=${chatId}&page=${nextPage}&amountOfNewMessages=${amountOfNewMessages}`
+        `${getApiBaseUrl()}/api/conversation/get/initial_messages?userId=${sessionUserId}&chatId=${chatId}&page=${nextPage}&amountOfNewMessages=${amountOfNewMessages}`
       );
 
       if (data) setMessages(data.reverse());

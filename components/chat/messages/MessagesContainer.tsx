@@ -14,7 +14,7 @@ import {
 } from "@supabase/supabase-js";
 import axios from "axios";
 import { ExtendedMessage } from "@/types/extended";
-import { domain } from "@/lib/api";
+import { getApiBaseUrl } from "@/lib/api";
 import { ScrollDown } from "./ScrollDown";
 import { LoadMoreMessages } from "./LoadMoreMessages";
 import { MessageSquare } from "lucide-react";
@@ -64,7 +64,7 @@ export const MessagesContainer = ({
       if (sessionUserId !== payload.new.senderId) {
         try {
           const { data, status } = await axios.get<ExtendedMessage>(
-            `${domain}/api/conversation/get/new_message?messageId=${payload.new.id}`
+            `${getApiBaseUrl()}/api/conversation/get/new_message?messageId=${payload.new.id}`
           );
           console.log(data);
 

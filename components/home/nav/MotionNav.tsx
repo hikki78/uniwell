@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ThemeSwitcher } from "@/components/switchers/ThemeSwitcher";
 import Link from "next/link";
@@ -30,7 +31,14 @@ export const MotionNav = () => {
             className="flex items-center space-x-6"
           >
             <div className="flex items-center space-x-2">
-              <Sparkles className="h-6 w-6 text-purple-500" />
+              <Image 
+                src="/images/unilogo.png" 
+                alt="UniWell Logo" 
+                width={24} 
+                height={24} 
+                className="h-6 w-auto"
+                priority
+              />
               <Link href="/" className="text-xl font-bold">UniWell</Link>
             </div>
             

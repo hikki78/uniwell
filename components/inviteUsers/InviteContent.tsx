@@ -9,7 +9,7 @@ import {
 } from "../ui/hover-card";
 import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { domain } from "@/lib/api";
+import { getApiBaseUrl } from "@/lib/api";
 import { Button } from "../ui/button";
 import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError, AxiosResponse } from "axios";
@@ -53,7 +53,7 @@ export const InviteContent = ({
       }
     };
 
-    return `${domain}/${lang}/dashboard/invite/${
+    return `${getApiBaseUrl()}/${lang}/dashboard/invite/${
       codes.inviteCode
     }?role=${selectedRole}&shareCode=${shareCode()}`;
   }, [codes, lang, selectedRole]);

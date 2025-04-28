@@ -10,9 +10,9 @@ import { Send, Smile } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
-import { UploadFilesButton } from "./UploadFileButton";
+
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { FilePreview } from "./FilePreview";
+
 import { useSession } from "next-auth/react";
 import { useMessage } from "@/store/conversation/messages";
 import { v4 as uuidv4 } from "uuid";
@@ -116,25 +116,11 @@ export const NewMessageContainer = ({ chatId, workspaceId }: Props) => {
 
   return (
     <div className="p-2 w-full flex flex-col gap-2 bg-popover rounded-b-md px-4 py-2 shadow-sm border-t border-border">
-      {uploadedFiles && uploadedFiles.length > 0 && (
-        <ScrollArea className="w-full">
-          <div className="flex gap-4 pb-4 border-b border-border">
-            {uploadedFiles.map((file) => (
-              <FilePreview
-                key={file.id}
-                file={file}
-                onRemoveFile={onRemoveFileHandler}
-              />
-            ))}
-          </div>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
-      )}
+      
       <div className="w-full flex justify-between items-center gap-4">
         <div className="flex gap-0.5 sm:gap-1">
-          <UploadFilesButton
-            onChangeUploadedFiles={onChangeUploadedFilesHandler}
-          />
+          
+            
           <EmojiSelector
             asChild
             slide="right"

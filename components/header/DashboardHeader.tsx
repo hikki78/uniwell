@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Menu, Sparkles, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import Image from "next/image";
 import { ThemeSwitcher } from "@/components/switchers/ThemeSwitcher";
 import { logout } from "@/lib/auth";
 import { OpenSidebar } from "./OpenSidebar";
@@ -41,7 +42,14 @@ export function DashboardHeader() {
             </div>
             
             <Link href="/dashboard" className="flex items-center gap-2">
-              <Sparkles className="h-6 w-6 text-purple-500" />
+              <Image 
+                src="/images/unilogo.png" 
+                alt="UniWell Logo" 
+                width={24} 
+                height={24} 
+                className="h-6 w-auto"
+                priority
+              />
               <span className="text-xl font-bold">UniWell</span>
             </Link>
             

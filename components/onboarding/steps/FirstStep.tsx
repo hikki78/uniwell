@@ -15,10 +15,9 @@ import {
 } from "@/schema/additionalUserInfoFirstPart";
 import { ActionType } from "@/types/onBoardingContext";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, User } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { AddUserImage } from "../common/AddUserImage";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 
@@ -59,10 +58,7 @@ export const FirstStep = ({ profileImage }: Props) => {
         <span>{t("FIRST_STEP.TITLE.SECOND")}</span>
       </h2>
       <div className="max-w-md w-full space-y-8">
-        <div className="w-full flex flex-col justify-center items-center gap-2">
-          <p>{t("FIRST_STEP.PHOTO")}</p>
-          <AddUserImage profileImage={profileImage} />
-        </div>
+
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

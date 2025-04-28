@@ -1,15 +1,4 @@
 import { z } from "zod";
-import { MAX_FILE_SIZE, ACCEPTED_IMAGE_TYPES } from "./imageSchema";
-
-const file = z
-  .any()
-  .refine((file) => file?.size <= MAX_FILE_SIZE, "SCHEMA.IMAGE.MAX")
-  .refine(
-    (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
-    "SCHEMA.IMAGE.SUPPORTED"
-  )
-  .optional()
-  .nullable();
 
 export const color = z.enum([
   "PURPLE",
@@ -36,7 +25,6 @@ const workspaceName = z
 
 export const workspaceSchema = z.object({
   workspaceName,
-  file,
 });
 
 export const apiWorkspaceSchema = z.object({
@@ -46,12 +34,9 @@ export const apiWorkspaceSchema = z.object({
     .refine((username) => /^[a-zA-Z0-9]+$/.test(username), {
       message: "SCHEMA.WORKSPACE.SPECIAL_CHARS",
     }),
-  file: z.string().optional().nullable(),
 });
 
-export const workspacePicture = z.object({
-  file,
-});
+export const workspacePicture = z.object({});
 
 export const apiWorkspaceDeletePicture = z.object({
   id: z.string(),

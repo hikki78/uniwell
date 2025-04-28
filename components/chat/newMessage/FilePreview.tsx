@@ -18,12 +18,10 @@ interface Props {
   onRemoveFile: (fileId: string) => void;
 }
 
-export const FilePreview = ({
-  file: { name, type, url, id },
-  onRemoveFile,
-}: Props) => {
+//@ts-ignore
   const fileName = useTruncateText(name, 23);
   const t = useTranslations("CHAT.NEW_MESSAGE");
+  //@ts-ignore
   return (
     <div className="p-2 sm:py-3 rounded-md bg-secondary shadow-sm relative flex flex-col items-center">
       <div className="w-24 h-16 sm:w-28 sm:h-20 md:w-32 md:h-24 flex justify-center items-center">
@@ -64,4 +62,4 @@ export const FilePreview = ({
       </div>
     </div>
   );
-};
+

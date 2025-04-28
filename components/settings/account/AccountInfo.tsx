@@ -109,15 +109,7 @@ export const AccountInfo = ({
   return (
     <Card className="bg-background border-none shadow-none">
       <CardContent>
-        <div className="space-y-2">
-          <p className="uppercase text-xs text-muted-foreground">
-            {t("ACCOUNT.IMAGE")}
-          </p>
-          <AddUserImage
-            className="w-20 h-20 md:w-24 md:h-24"
-            profileImage={image}
-          />
-        </div>
+
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}

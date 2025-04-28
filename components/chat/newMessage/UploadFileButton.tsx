@@ -1,4 +1,4 @@
-"use client";
+// UploadThing UI removed
 
 import { AdditionalResource } from "@/types/extended";
 import { UploadButton } from "@/lib/uploadthing";
