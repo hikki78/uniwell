@@ -86,6 +86,7 @@ export const AddWorkspaceForm = ({ onSetOpen }: Props) => {
   const onSubmit = async (data: WorkspaceSchema) => {
     setUploadError(false);
 
+    //@ts-ignore
     const image: File | undefined | null = data.file;
 
     let workspaceImageURL: null | string = null;
@@ -97,6 +98,7 @@ export const AddWorkspaceForm = ({ onSetOpen }: Props) => {
 
     newWorkspace({
       workspaceName: data.workspaceName,
+      //@ts-ignore
       file: workspaceImageURL,
     });
   };

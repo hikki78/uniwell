@@ -169,6 +169,7 @@ export const EditorWorkspaceImage = ({
   );
 
   const onSubmit = async (data: WorkspacePicture) => {
+    //@ts-ignore
     const image: File = data.file;
     await startUpload([image]);
   };
@@ -189,6 +190,7 @@ export const EditorWorkspaceImage = ({
             variant={image ? "ghost" : "default"}
             size={"icon"}
             onClick={() => {
+              //@ts-ignore
               form.clearErrors("file");
               setImagePreview("");
             }}

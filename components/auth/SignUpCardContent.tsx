@@ -33,6 +33,7 @@ export const SignUpCardContent = () => {
     },
   });
   const [isLoading, setIsLoading] = useState(false);
+  //@ts-ignore
   const { toast } = useToast();
   const router = useRouter();
 

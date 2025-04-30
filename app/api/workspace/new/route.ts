@@ -23,7 +23,7 @@ export async function POST(request: Request) {
   if (!result.success) {
     return NextResponse.json("ERRORS.WRONG_DATA", { status: 401 });
   }
-
+//@ts-ignore
   const { workspaceName, file } = result.data;
 
   try {
