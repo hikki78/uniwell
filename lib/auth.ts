@@ -56,16 +56,57 @@ export function logout() {
   }
 }
 
-// Add other auth methods that are safe for client use
+// Determine if we're in development or production
+// Don't rely on NODE_ENV directly which can cause issues with Next.js
+const isDevelopment = () => {
+  // Check for specific development indicators
+  if (
+    // Check for localhost in URL
+    (typeof window !== 'undefined' && window.location.hostname === 'localhost') ||
+    // Check if NETLIFY_DEV is set
+    process.env.NETLIFY_DEV === 'true' ||
+    // Explicit development URL
+    process.env.NEXTAUTH_URL?.includes('localhost')
+  ) {
+    return true;
+  }
+  return false;
+};
+
+// Flexible base URL determination that works for both local and Netlify
+const getBaseUrl = () => {
+  // For Netlify deployment (prefer URL from environment)
+  if (process.env.NETLIFY_URL) {
+    return process.env.NETLIFY_URL;
+  }
+  
+  // For other production environments (like Vercel)
+  if (process.env.NEXTAUTH_URL && !process.env.NEXTAUTH_URL.includes('localhost')) {
+    return process.env.NEXTAUTH_URL;
+  }
+  
+  // For development (localhost)
+  if (isDevelopment()) {
+    return process.env.NEXTAUTH_URL || "http://localhost:3000";
+  }
+  
+  // Fallback for production
+  return "https://uniwell.netlify.app";
+};
+
+// Export URL for use in other parts of the app
+export const siteUrl = getBaseUrl();
 
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   pages: {
-    error: "/sign-in",
     signIn: "/sign-in",
     signOut: "/sign-in",
+    error: "/sign-in", // Error code passed in query string as ?error=
+    newUser: "/onboarding",
   },
   adapter: PrismaAdapter(db) as Adapter,
   providers: [
@@ -88,7 +129,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials, req) {
         if (!credentials?.email || !credentials.password) {
-          throw new Error("Please enter email and password.");
+          return null;
         }
 
         const user = await db.user.findUnique({
@@ -98,7 +139,7 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user || !user?.hashedPassword) {
-          throw new Error("User was not found, Please enter valid email");
+          return null;
         }
         const bcryptLib = await getBcrypt();
         const passwordMatch = await bcryptLib.compare(
@@ -107,16 +148,47 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (!passwordMatch) {
-          throw new Error(
-            "The entered password is incorrect, please enter the correct one."
-          );
+          return null;
         }
 
         return user;
       },
     }),
   ],
-  secret: process.env.NEXTAUTH_SECRET,
+  // Use explicit NEXTAUTH_SECRET from env variables
+  secret: process.env.NEXTAUTH_SECRET || 'development-secret-do-not-use-in-production',
+  // Fix the auth URL issues on Netlify
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: !isDevelopment(), // Only secure in production
+      },
+    },
+    callbackUrl: {
+      name: `next-auth.callback-url`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: !isDevelopment(),
+      },
+    },
+    csrfToken: {
+      name: `next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: !isDevelopment(),
+      },
+    },
+  },
+  // Debug mode in development only
+  debug: isDevelopment(),
   callbacks: {
     async session({ session, token }) {
       if (token) {
@@ -140,8 +212,7 @@ export const authOptions: NextAuthOptions = {
         session.user.completedOnboarding = user.completedOnboarding;
         session.user.username = user.username;
       }
-     
-
+       
       return session;
     },
     async jwt({ token, user }) {
@@ -161,9 +232,13 @@ export const authOptions: NextAuthOptions = {
         username: dbUser.username,
         email: dbUser.email,
         picture: dbUser.image,
+        name: dbUser.name,
+        surname: dbUser.surname,
+        completedOnboarding: dbUser.completedOnboarding,
       };
     },
   },
 };
 
 export const getAuthSession = () => getServerSession(authOptions);
+

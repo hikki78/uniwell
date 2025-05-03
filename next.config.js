@@ -20,6 +20,8 @@ const nextConfig = {
         hostname: "avatars.githubusercontent.com",
       },
     ],
+    // Only unoptimized in production for Netlify
+    unoptimized: process.env.NODE_ENV === 'production', 
   },
   webpack: (config, { isServer }) => {
     // Handle Node.js specific modules
@@ -36,6 +38,22 @@ const nextConfig = {
       };
     }
     return config;
+  },
+  // Add output settings only for production
+  ...(process.env.NODE_ENV === 'production' ? {
+    output: 'standalone',
+  } : {}),
+  // Environment variables for the client
+  env: {
+    // Production vs development settings
+    NEXTAUTH_URL: process.env.NODE_ENV === 'production' 
+      ? (process.env.URL || 'https://uniwell.netlify.app')
+      : 'http://localhost:3000',
+    NETLIFY_URL: process.env.NODE_ENV === 'production'
+      ? (process.env.URL || 'https://uniwell.netlify.app')
+      : 'http://localhost:3000',
+    // Shared variables for all environments
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || 'development-secret-do-not-use-in-production'
   },
 };
 

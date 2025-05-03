@@ -309,6 +309,16 @@ export default function WellbeingDashboard() {
         }
       } catch (error) {
         console.error('Error fetching weather:', error);
+        // Use fallback data when API fails
+        setWeather({
+          temp: '22°C',
+          condition: 'Clear',
+          icon: ''
+        });
+        toast.error("Couldn't load weather data. Using defaults.", {
+          id: "weather-error",
+          duration: 3000
+        });
       }
     };
     
@@ -318,36 +328,7 @@ export default function WellbeingDashboard() {
     return () => clearInterval(weatherInterval);
   }, []);
   
-  // Fetch tasks data for productivity score
-  useEffect(() => {
-    if (!userId) return;
-    
-    const fetchTasks = async () => {
-      try {
-        setLoading(true);
-        // Fetch all tasks for the user
-        const response = await axios.get(`/api/dashboard/tasks?userId=${userId}`);
-        if (response.data) {
-          setTasks({
-            total: response.data.total,
-            completed: response.data.completed
-          });
-          
-          // Calculate productivity score based on task completion
-          const score = response.data.total > 0 
-            ? Math.round((response.data.completed / response.data.total) * 100) 
-            : 0;
-          setProductivityScore(score);
-        }
-      } catch (error) {
-        console.error('Error fetching tasks:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchTasks();
-  }, [userId]);
+
   
   // Fetch user settings
   useEffect(() => {
@@ -369,6 +350,16 @@ export default function WellbeingDashboard() {
         }
       } catch (error) {
         console.error('Error fetching settings:', error);
+        // Use default settings if API fails
+        setSettings(defaultSettings);
+        
+        // Update daily goals with default settings
+        setDailyGoals(prev => [
+          { ...prev[0], text: `${defaultSettings.exerciseGoal} minutes exercise` },
+          { ...prev[1], text: `${defaultSettings.sleepGoal} hours sleep` },
+          { ...prev[2], text: `${defaultSettings.waterIntakeGoal / 1000}L water intake` },
+          { ...prev[3], text: `${defaultSettings.meditationGoal} minutes meditation` },
+        ]);
       }
     };
     

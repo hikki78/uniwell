@@ -1,0 +1,90 @@
+# Settings for Netlify deployment
+[build]
+  command = "npm run build"
+  publish = ".next"
+  
+[build.environment]
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# Use the Next.js plugin for proper routing
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Production environment variables
+[context.production.environment]
+  NEXTAUTH_URL = "https://uniwell.netlify.app"
+  NETLIFY_URL = "https://uniwell.netlify.app"
+
+# Development/Branch deploy environment variables
+[context.branch-deploy.environment]
+  # These will be set to the branch deployment URL automatically
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
+
+# Use development settings for local development
+[context.dev.environment]
+  NEXTAUTH_URL = "http://localhost:3000"
+  
+# Function settings
+[functions]
+  # Directory where Netlify functions are stored
+  directory = "netlify/functions"
+  included_files = ["**/*"]
+  node_bundler = "esbuild"
+
+# Local development server settings
+[dev]
+  command = "npm run dev"
+  port = 3000
+  targetPort = 8888
+  framework = "next"
+  autoLaunch = true
+
+# Handle Next.js static assets
+[[redirects]]
+  from = "/_next/*"
+  to = "/_next/:splat"
+  status = 200
+
+# Handle static assets
+[[redirects]]
+  from = "/static/*"
+  to = "/static/:splat"
+  status = 200
+  
+# Authentication API routes - high priority
+[[redirects]]
+  from = "/api/auth/*"
+  to = "/.netlify/functions/nextauth/:splat"
+  status = 200
+  force = true
+
+# API routes
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
+
+# Sign-in page
+[[redirects]]
+  from = "/sign-in"
+  to = "/en/sign-in"
+  status = 200
+  
+# Sign-up page
+[[redirects]]
+  from = "/sign-up"
+  to = "/en/sign-up"
+  status = 200
+
+# Dashboard with locale
+[[redirects]]
+  from = "/dashboard/*"
+  to = "/en/dashboard/:splat"
+  status = 200
+
+# Catch all for SPA routing (must be last)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200 
