@@ -1,10 +1,11 @@
 # Settings for Netlify deployment
 [build]
-  command = "npm run build"
+  command = "npx prisma generate && npm run build"
   publish = ".next"
   
 [build.environment]
   NEXT_TELEMETRY_DISABLED = "1"
+  NODE_OPTIONS = "--max_old_space_size=4096"
 
 # Use the Next.js plugin for proper routing
 [[plugins]]

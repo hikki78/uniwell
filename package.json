@@ -13,7 +13,8 @@
     "test:dashboard": "jest __tests__/components/dashboard",
     "netlify-dev": "node netlify-dev.js",
     "netlify-build": "netlify build",
-    "netlify-dev-cross": "cross-env NODE_ENV=development npx netlify dev"
+    "netlify-dev-cross": "cross-env NODE_ENV=development npx netlify dev",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.2",
