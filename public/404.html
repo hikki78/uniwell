@@ -5,53 +5,114 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Work In Progress - Uniwell</title>
   <style>
+    :root {
+      --purple-50: #faf5ff;
+      --purple-100: #f3e8ff;
+      --purple-200: #e9d5ff;
+      --purple-300: #d8b4fe;
+      --purple-400: #c084fc;
+      --purple-500: #a855f7;
+      --purple-600: #9333ea;
+      --purple-700: #7e22ce;
+      --purple-800: #6b21a8;
+      --purple-900: #581c87;
+      --purple-950: #3b0764;
+      --indigo-400: #818cf8;
+      --indigo-500: #6366f1;
+      --indigo-600: #4f46e5;
+    }
+    
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
       margin: 0;
       padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       min-height: 100vh;
-      background: linear-gradient(to bottom, #f8fafc, #e2e8f0);
+      background: linear-gradient(135deg, var(--purple-50), var(--purple-100));
       color: #1e293b;
+      overflow-x: hidden;
+    }
+    
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background-color: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .logo {
+      width: 24px;
+      height: 24px;
+    }
+    
+    .logo-text {
+      font-weight: bold;
+      font-size: 1.25rem;
+    }
+    
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 64px);
+      padding: 2rem;
     }
     
     .card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      position: relative;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      border-radius: 1rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
       padding: 2rem;
       max-width: 90%;
-      width: 450px;
+      width: 500px;
       text-align: center;
-      animation: pulse 2s infinite;
+      border: 1px solid var(--purple-200);
     }
     
-    @keyframes pulse {
-      0% { box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
-      50% { box-shadow: 0 10px 30px rgba(147, 51, 234, 0.3); }
-      100% { box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
-    }
-    
-    .icon {
-      width: 80px;
-      height: 80px;
+    .logo-circle {
+      position: relative;
+      width: 120px;
+      height: 120px;
       margin: 0 auto 1.5rem;
       border-radius: 50%;
-      background-color: #f3e8ff;
+      background-color: var(--purple-100);
       display: flex;
       align-items: center;
       justify-content: center;
     }
     
-    .spinner {
-      border: 4px solid rgba(147, 51, 234, 0.3);
+    .logo-circle::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       border-radius: 50%;
-      border-top: 4px solid #9333ea;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
+      border: 4px solid transparent;
+      border-top-color: var(--purple-500);
+      animation: spin 2s linear infinite;
+    }
+    
+    .logo-image {
+      width: 60px;
+      height: 60px;
+      animation: rotate 20s linear infinite;
+    }
+    
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
     
     @keyframes spin {
@@ -60,56 +121,154 @@
     }
     
     h1 {
-      font-size: 1.875rem;
+      font-size: 2.5rem;
       font-weight: 700;
-      margin-bottom: 1rem;
-      background: linear-gradient(to right, #9333ea, #3b82f6);
+      margin-bottom: 1.5rem;
+      background: linear-gradient(to right, var(--purple-600), var(--indigo-600));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      animation: fadeIn 1s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     
     .message {
-      color: #64748b;
+      color: #4b5563;
       font-size: 1.125rem;
       margin-bottom: 2rem;
+      animation: fadeIn 1s ease-out 0.3s both;
+    }
+    
+    .loader-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    
+    .spinner {
+      border: 3px solid rgba(147, 51, 234, 0.3);
+      border-radius: 50%;
+      border-top: 3px solid var(--purple-600);
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
     }
     
     .dots {
       font-family: monospace;
-      margin-top: 0.5rem;
+      animation: fadeIn 1s ease-out 0.6s both;
     }
     
     .button {
-      display: inline-block;
-      background: linear-gradient(to right, #9333ea, #3b82f6);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(to right, var(--purple-600), var(--indigo-600));
       color: white;
       font-weight: 500;
       padding: 0.75rem 1.5rem;
-      border-radius: 6px;
+      border-radius: 0.5rem;
       text-decoration: none;
       transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      animation: fadeIn 1s ease-out 0.9s both;
     }
     
     .button:hover {
-      opacity: 0.9;
-      transform: translateY(-1px);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+    
+    .button::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to right, var(--indigo-600), var(--purple-600));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .button:hover::after {
+      opacity: 1;
+    }
+    
+    .button span {
+      position: relative;
+      z-index: 10;
+    }
+    
+    .sparkle {
+      position: absolute;
+      background-color: rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
+      width: 4px;
+      height: 4px;
+      animation: twinkle 4s infinite;
+    }
+    
+    @keyframes twinkle {
+      0% { opacity: 0; transform: scale(0); }
+      50% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(0); }
+    }
+    
+    /* Generate 20 random sparkles */
+    .sparkles-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="icon">
-      <div class="spinner"></div>
+  <!-- Header -->
+  <div class="header">
+    <div class="logo-container">
+      <img src="/images/unilogo.png" alt="UniWell Logo" class="logo">
+      <span class="logo-text">UniWell</span>
     </div>
+  </div>
+
+  <div class="container">
+    <!-- Sparkles background -->
+    <div class="sparkles-container" id="sparkles-container"></div>
     
-    <h1>Work In Progress</h1>
-    
-    <div class="message">
-      <p>We're building something amazing for you!</p>
-      <p class="dots" id="dots">< . ></p>
+    <div class="card">
+      <!-- Logo -->
+      <div class="logo-circle">
+        <img src="/images/unilogo.png" alt="UniWell Logo" class="logo-image">
+      </div>
+      
+      <!-- Title -->
+      <h1>Work In Progress</h1>
+      
+      <!-- Message -->
+      <div class="message">
+        <p>We're building something amazing for you!</p>
+        <div class="loader-container">
+          <div class="spinner"></div>
+          <p class="dots" id="dots">< . ></p>
+        </div>
+      </div>
+      
+      <!-- Button -->
+      <a href="/" class="button">
+        <span>Return Home</span>
+      </a>
     </div>
-    
-    <a href="/" class="button">Return Home</a>
   </div>
 
   <script>
@@ -122,6 +281,29 @@
       const dots = '.'.repeat(dotCount);
       dotsElement.textContent = `< ${dots} >`;
     }, 500);
+    
+    // Generate sparkles
+    const sparklesContainer = document.getElementById('sparkles-container');
+    const numberOfSparkles = 30;
+    
+    for (let i = 0; i < numberOfSparkles; i++) {
+      const sparkle = document.createElement('div');
+      sparkle.classList.add('sparkle');
+      
+      // Random position
+      sparkle.style.left = `${Math.random() * 100}%`;
+      sparkle.style.top = `${Math.random() * 100}%`;
+      
+      // Random size
+      const size = Math.random() * 4 + 2;
+      sparkle.style.width = `${size}px`;
+      sparkle.style.height = `${size}px`;
+      
+      // Random animation delay
+      sparkle.style.animationDelay = `${Math.random() * 4}s`;
+      
+      sparklesContainer.appendChild(sparkle);
+    }
   </script>
 </body>
 </html> 
