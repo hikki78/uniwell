@@ -16,12 +16,10 @@ export default function DashboardRedirect() {
     router.push(`/${locale}/work-in-progress`);
   }, [router]);
 
-  // Return loading indicator while redirecting
-  return (
-    <div className="flex items-center justify-center h-screen">
-      <p className="text-muted-foreground animate-pulse">Redirecting...</p>
-    </div>
-  );
+  // Return empty div while redirecting
+  return <div className="flex items-center justify-center h-screen">
+    <p className="text-muted-foreground animate-pulse">Redirecting...</p>
+  </div>;
 }
 
 // Original dashboard component was removed for redirection
