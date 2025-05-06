@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Zap, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 export default function NotFound() {
   const [dots, setDots] = useState("");
@@ -45,4 +45,4 @@ export default function NotFound() {
       </Card>
     </div>
   );
-}
+} 
