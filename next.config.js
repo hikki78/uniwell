@@ -20,8 +20,7 @@ const nextConfig = {
         hostname: "avatars.githubusercontent.com",
       },
     ],
-    // No longer using Netlify-specific settings
-    unoptimized: false, 
+    unoptimized: process.env.NODE_ENV === 'production', // Enable this for Netlify
   },
   webpack: (config, { isServer }) => {
     // Handle Node.js specific modules
@@ -47,11 +46,13 @@ const nextConfig = {
   env: {
     // Production vs development settings
     NEXTAUTH_URL: process.env.NODE_ENV === 'production' 
-      ? process.env.URL || 'http://localhost:3000'
+      ? process.env.NEXTAUTH_URL || 'https://uniwell.netlify.app'
       : 'http://localhost:3000',
     // Shared variables for all environments
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || 'development-secret-do-not-use-in-production'
   },
+  // Disable trailing slashes for Netlify compatibility
+  trailingSlash: false,
 };
 
 const withNextIntl = require("next-intl/plugin")("./i18n.ts");
