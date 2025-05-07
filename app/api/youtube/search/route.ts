@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { dynamicConfig } from '../../config';
 
-// Export the dynamic config
-export const { runtime, dynamic } = dynamicConfig;
+// Route dynamic config
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {

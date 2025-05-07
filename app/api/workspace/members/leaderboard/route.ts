@@ -1,7 +1,6 @@
 import { db } from "@/lib/db";
 import { UserPermission } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
-import { dynamicConfig } from "../../../config";
 
 interface LeaderboardMember {
   id: string;
@@ -41,8 +40,8 @@ interface MessageCount {
   };
 }
 
-// Export the dynamic config
-export const { runtime, dynamic } = dynamicConfig;
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
