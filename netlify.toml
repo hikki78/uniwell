@@ -4,7 +4,20 @@
 
 [build.environment]
   NODE_VERSION = "18"
+  NEXT_TELEMETRY_DISABLED = "1"
+  NEXT_USE_NETLIFY_EDGE = "true"
+  NEXT_PUBLIC_NETLIFY_DEPLOYMENT = "true"
+
+# Tell Next.js to handle API routes properly
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
 # Force the build to use our configuration, not the one from the UI
 [build.processing]
-  skip_processing = true 
+  skip_processing = false
+
+# Handle client-side routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200 

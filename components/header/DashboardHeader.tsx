@@ -13,7 +13,7 @@ import { NotificationContainer } from "@/components/notifications/NotificationCo
 
 export function DashboardHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [userId, setUserId] = useState<string>("");
   
   const handleLogout = () => {
@@ -30,6 +30,9 @@ export function DashboardHeader() {
       setUserId(session.user.id);
     }
   }, [session]);
+
+  // Check if we're running on the server during static generation
+  const isStatic = typeof window === 'undefined' && process.env.NODE_ENV === 'production';
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -87,7 +90,7 @@ export function DashboardHeader() {
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
             
-            {userId && <NotificationContainer userId={userId} />}
+            {!isStatic && userId && <NotificationContainer userId={userId} />}
             
             <ThemeSwitcher 
               alignHover="end"

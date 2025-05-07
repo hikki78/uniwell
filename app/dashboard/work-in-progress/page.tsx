@@ -8,10 +8,16 @@ import { DashboardHeader } from "@/components/header/DashboardHeader";
 import Image from "next/image";
 import Link from "next/link";
 
+// Add a static export configuration
+export const dynamic = 'error'; // Force errors if this page tries to be dynamic
+export const revalidate = false; // Don't revalidate this page
+
 export default function WorkInProgressPage() {
   const [dots, setDots] = useState("");
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     const interval = setInterval(() => {
       setDots(prev => (prev.length >= 3 ? "" : prev + "."));
     }, 500);
@@ -27,6 +33,48 @@ export default function WorkInProgressPage() {
     scale: Math.random() * 0.5 + 0.5,
     delay: Math.random() * 2
   }));
+
+  // During static generation, return a simpler version without client-side features
+  if (!isMounted && typeof window === 'undefined') {
+    return (
+      <>
+        <div className="relative min-h-[calc(100vh-4rem)] bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 overflow-hidden">
+          <div className="container mx-auto px-4 py-10 flex flex-col items-center justify-center h-full">
+            <div className="w-full max-w-2xl">
+              <div className="relative p-8 rounded-xl bg-white/80 dark:bg-purple-950/80 backdrop-blur-lg shadow-xl border border-purple-200 dark:border-purple-800">
+                <div className="mx-auto w-32 h-32 mb-6 relative">
+                  <div className="absolute inset-0 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
+                    <Image 
+                      src="/images/unilogo.png" 
+                      alt="UniWell Logo" 
+                      width={80} 
+                      height={80} 
+                      className="h-16 w-auto"
+                      priority
+                    />
+                  </div>
+                </div>
+                <h1 className="text-4xl md:text-5xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-400 dark:to-indigo-400">
+                  Work In Progress
+                </h1>
+                <div className="text-center text-lg text-gray-700 dark:text-gray-300 mb-8">
+                  <p className="mb-2">We're building something amazing for you!</p>
+                </div>
+                <div className="flex justify-center">
+                  <Link 
+                    href="/"
+                    className="relative inline-flex items-center justify-center overflow-hidden rounded-md bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-3 font-medium text-white transition-all hover:from-purple-700 hover:to-indigo-700 group"
+                  >
+                    Return Home
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

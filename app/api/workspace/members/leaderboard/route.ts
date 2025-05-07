@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { UserPermission } from "@prisma/client";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 interface LeaderboardMember {
   id: string;
@@ -40,7 +40,10 @@ interface MessageCount {
   };
 }
 
-export async function GET(req: Request) {
+// Add the dynamic export to tell Next.js this is a dynamic route
+export const dynamic = 'force-dynamic';
+
+export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const workspaceId = searchParams.get("workspaceId");

@@ -8,9 +8,11 @@ const fs = require('fs');
 const path = require('path');
 
 // Check if we're in a Netlify build environment
-const isNetlify = process.env.NETLIFY === 'true';
+const isNetlify = process.env.NETLIFY === 'true' || process.env.NEXT_PUBLIC_NETLIFY_DEPLOYMENT === 'true';
 console.log(`🔍 Build environment: ${isNetlify ? 'Netlify' : 'Local'}`);
 console.log(`🔍 NODE_ENV: ${process.env.NODE_ENV}`);
+console.log(`🔍 NETLIFY: ${process.env.NETLIFY || 'not set'}`);
+console.log(`🔍 NEXT_PUBLIC_NETLIFY_DEPLOYMENT: ${process.env.NEXT_PUBLIC_NETLIFY_DEPLOYMENT || 'not set'}`);
 
 // Function to check if required environment variables are set
 function checkEnvVars() {

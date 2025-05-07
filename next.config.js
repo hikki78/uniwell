@@ -51,6 +51,17 @@ const nextConfig = {
     // Shared variables for all environments
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || 'development-secret-do-not-use-in-production'
   },
+  // Special handling for dynamic routes in static export
+  experimental: {
+    // For Netlify deployment
+    optimizePackageImports: [
+      '@radix-ui/react-icons',
+      'lucide-react',
+      'framer-motion',
+    ]
+  },
+  // Disable using server components for API routes in static exports
+  serverComponentsExternalPackages: [],
 };
 
 const withNextIntl = require("next-intl/plugin")("./i18n.ts");
