@@ -33,6 +33,7 @@ export const MotionNav = () => {
             <div className="flex items-center space-x-2">
               <Image 
                 src="/images/unilogo.png" 
+                unoptimized
                 alt="UniWell Logo" 
                 width={24} 
                 height={24} 

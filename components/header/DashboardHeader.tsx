@@ -47,6 +47,7 @@ export function DashboardHeader() {
             <Link href="/dashboard" className="flex items-center gap-2">
               <Image 
                 src="/images/unilogo.png" 
+                unoptimized
                 alt="UniWell Logo" 
                 width={24} 
                 height={24} 
