@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "node prisma-setup.js && prisma generate && next build",
-    "build:netlify": "cross-env NEXT_PUBLIC_NETLIFY_DEPLOYMENT=true NODE_ENV=production node prisma-setup.js && prisma generate --schema=./prisma/schema.prisma && next build && node netlify/post-build.js",
+    "build:netlify": "node prisma-setup.js && prisma generate --schema=./prisma/schema.prisma && next build",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",

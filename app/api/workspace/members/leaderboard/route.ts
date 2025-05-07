@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { UserPermission } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+import { dynamicConfig } from "../../../config";
 
 interface LeaderboardMember {
   id: string;
@@ -40,8 +41,8 @@ interface MessageCount {
   };
 }
 
-// Add the dynamic export to tell Next.js this is a dynamic route
-export const dynamic = 'force-dynamic';
+// Export the dynamic config
+export const { runtime, dynamic } = dynamicConfig;
 
 export async function GET(req: NextRequest) {
   try {
