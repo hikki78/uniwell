@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-import Image from "next/image";
 import { ThemeSwitcher } from "@/components/switchers/ThemeSwitcher";
 import { logout } from "@/lib/auth";
 import { OpenSidebar } from "./OpenSidebar";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { NotificationContainer } from "@/components/notifications/NotificationContainer";
+
+// Removed Next.js Image to use native img for logo visibility
 
 export function DashboardHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -45,14 +46,12 @@ export function DashboardHeader() {
             </div>
             
             <Link href="/dashboard" className="flex items-center gap-2">
-              <Image 
-                src="/images/unilogo.png" 
-                unoptimized
-                alt="UniWell Logo" 
-                width={24} 
-                height={24} 
+              <img
+                src="/images/unilogo.png"
+                alt="UniWell Logo"
+                width={24}
+                height={24}
                 className="h-6 w-auto"
-                priority
               />
               <span className="text-xl font-bold">UniWell</span>
             </Link>
