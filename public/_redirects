@@ -1,8 +1,0 @@
-# Handle client-side routing for Next.js
-/*    /index.html   200
-
-# Specific redirect for dashboard paths
-/dashboard/*    /dashboard/work-in-progress    200
-
-# Handle API routes
-/api/*    /api/:splat    200 
