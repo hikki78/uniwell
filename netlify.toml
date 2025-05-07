@@ -1,0 +1,10 @@
+[build]
+  command = "npm run build:netlify"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# Force the build to use our configuration, not the one from the UI
+[build.processing]
+  skip_processing = true 
